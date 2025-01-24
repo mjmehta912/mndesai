@@ -45,12 +45,12 @@ class ResetPasswordScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Reset Password',
-                        style: TextStyles.kSemiBoldDMSans(
+                        style: TextStyles.kRegularDMSans(
                           color: kColorTextPrimary,
-                          fontSize: FontSizes.k36FontSize,
+                          fontSize: FontSizes.k40FontSize,
                         ),
                       ),
-                      AppSpaces.v20,
+                      AppSpaces.v30,
                       Obx(
                         () => AppTextFormField(
                           controller: _controller.newPasswordController,
@@ -75,7 +75,7 @@ class ResetPasswordScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      AppSpaces.v20,
+                      AppSpaces.v16,
                       Obx(
                         () => AppTextFormField(
                           controller: _controller.confirmPasswordController,
@@ -104,7 +104,7 @@ class ResetPasswordScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      AppSpaces.v40,
+                      AppSpaces.v30,
                       AppButton(
                         title: 'Reset Password',
                         onPressed: () {

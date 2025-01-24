@@ -46,9 +46,9 @@ class OtpScreen extends StatelessWidget {
                   children: [
                     Text(
                       'OTP Verification',
-                      style: TextStyles.kMediumDMSans(
+                      style: TextStyles.kRegularDMSans(
                         color: kColorTextPrimary,
-                        fontSize: FontSizes.k36FontSize,
+                        fontSize: FontSizes.k40FontSize,
                       ),
                     ),
                     Text(
@@ -95,7 +95,7 @@ class OtpScreen extends StatelessWidget {
                             'Please enter a 6-digit OTP',
                           );
                         } else {
-                          Get.to(
+                          Get.offAll(
                             () => ResetPasswordScreen(
                               mobileNumber: mobileNumber,
                             ),
@@ -103,7 +103,7 @@ class OtpScreen extends StatelessWidget {
                         }
                       },
                     ),
-                    AppSpaces.v20,
+                    AppSpaces.v30,
                     Center(
                       child: Obx(
                         () {
@@ -112,9 +112,16 @@ class OtpScreen extends StatelessWidget {
                             title: _controller.resendEnabled.value
                                 ? 'Resend OTP'
                                 : 'Resend in ${_controller.timerValue.value}s',
-                            color: _controller.resendEnabled.value
-                                ? kColorPrimary
-                                : kColorGrey,
+                            style: TextStyles.kRegularDMSans(
+                              fontSize: FontSizes.k16FontSize,
+                              color: _controller.resendEnabled.value
+                                  ? kColorPrimary
+                                  : kColorGrey,
+                            ).copyWith(
+                              height: 1,
+                              decoration: TextDecoration.underline,
+                              decorationColor: kColorPrimary,
+                            ),
                           );
                         },
                       ),

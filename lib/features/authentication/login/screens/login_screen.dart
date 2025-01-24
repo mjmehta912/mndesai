@@ -46,11 +46,11 @@ class LoginScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Let \'s sign you in',
-                        style: TextStyles.kSemiBoldDMSans(
-                          fontSize: FontSizes.k36FontSize,
+                        style: TextStyles.kRegularDMSans(
+                          fontSize: FontSizes.k40FontSize,
                         ),
                       ),
-                      AppSpaces.v40,
+                      AppSpaces.v30,
                       AppTextFormField(
                         controller: _controller.mobileNumberController,
                         hintText: 'Mobile Number',
@@ -70,7 +70,7 @@ class LoginScreen extends StatelessWidget {
                           LengthLimitingTextInputFormatter(10),
                         ],
                       ),
-                      AppSpaces.v20,
+                      AppSpaces.v16,
                       Obx(
                         () => AppTextFormField(
                           controller: _controller.passwordController,
@@ -126,7 +126,7 @@ class LoginScreen extends StatelessWidget {
                               .validate()) {}
                         },
                       ),
-                      AppSpaces.v20,
+                      AppSpaces.v30,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

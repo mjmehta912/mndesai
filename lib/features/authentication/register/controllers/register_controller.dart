@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mndesai/features/authentication/login/screens/login_screen.dart';
+import 'package:mndesai/features/authentication/register/repositories/register_repo.dart';
+import 'package:mndesai/utils/dialogs/app_dialogs.dart';
 
 class RegisterController extends GetxController {
   var isLoading = false.obs;
@@ -40,6 +43,44 @@ class RegisterController extends GetxController {
   void validateForm() {
     if (hasAttemptedSubmit.value) {
       registerFormKey.currentState?.validate();
+    }
+  }
+
+  Future<void> registerUser() async {
+    isLoading.value = true;
+
+    try {
+      var response = await RegisterRepo.registerUser(
+        firstName: firstNameController.text,
+        lastName: lastNameController.text,
+        mobileNo: mobileNumberController.text,
+        password: passwordController.text,
+      );
+
+      if (response != null && response.containsKey('message')) {
+        String message = response['message'];
+        Get.offAll(
+          () => LoginScreen(),
+        );
+        showSuccessSnackbar(
+          'Success',
+          message,
+        );
+      }
+    } catch (e) {
+      if (e is Map<String, dynamic>) {
+        showErrorSnackbar(
+          'Error',
+          e['message'],
+        );
+      } else {
+        showErrorSnackbar(
+          'Error',
+          e.toString(),
+        );
+      }
+    } finally {
+      isLoading.value = false;
     }
   }
 }

@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   var isLoading = false.obs;
+  final loginFormKey = GlobalKey<FormState>();
 
   var mobileNumberController = TextEditingController();
   var passwordController = TextEditingController();
 
   var hasAttemptedLogin = false.obs;
-  final loginFormKey = GlobalKey<FormState>();
 
   var obscuredText = true.obs;
   void togglePasswordVisibility() {

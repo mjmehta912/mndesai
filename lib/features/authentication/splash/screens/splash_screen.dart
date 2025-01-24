@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/features/authentication/login/screens/login_screen.dart';
+import 'package:mndesai/styles/font_sizes.dart';
+import 'package:mndesai/styles/text_styles.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
@@ -35,7 +37,11 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: kColorWhite,
       body: Center(
         child: Text(
-          'MN Desai',
+          'M N DESAI',
+          style: TextStyles.kBoldDMSans(
+            color: kColorPrimary,
+            fontSize: FontSizes.k36FontSize,
+          ),
         ),
       ),
     );

@@ -61,7 +61,7 @@ void showSuccessSnackbar(
     '',
     '',
     snackPosition: SnackPosition.BOTTOM,
-    backgroundColor: kColorGrey,
+    backgroundColor: kColorBlue,
     duration: const Duration(
       seconds: 3,
     ),
