@@ -6,7 +6,7 @@ import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/bill_entry/screens/bill_entry_screen.dart';
 import 'package:mndesai/features/bottom_nav/controllers/bottom_nav_controller.dart';
-import 'package:mndesai/features/point_calculation/screens/point_calculation_screen.dart';
+import 'package:mndesai/features/point_calculation/screens/points_calculation_screen.dart';
 import 'package:mndesai/features/profile/screens/profile_screen.dart';
 import 'package:mndesai/features/virtual_card_generation/screens/virtual_card_generation_screen.dart';
 
@@ -31,7 +31,7 @@ class BottomNavScreen extends StatelessWidget {
 
   List<Widget> get pages => [
         BillEntryScreen(),
-        PointCalculationScreen(),
+        PointsCalculationScreen(),
         VirtualCardGenerationScreen(),
         ProfileScreen(),
       ];

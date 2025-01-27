@@ -43,6 +43,7 @@ class ApiService {
             'Failed to load. Please try again later.';
       }
     } catch (e) {
+      print(e);
       throw e.toString();
     }
   }
