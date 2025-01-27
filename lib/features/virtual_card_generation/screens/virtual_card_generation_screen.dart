@@ -10,7 +10,6 @@ import 'package:mndesai/utils/screen_utils/app_spacings.dart';
 import 'package:mndesai/widgets/app_appbar.dart';
 import 'package:mndesai/widgets/app_button.dart';
 import 'package:mndesai/widgets/app_date_picker_field.dart';
-import 'package:mndesai/widgets/app_dropdown_search.dart';
 import 'package:mndesai/widgets/app_loading_overlay.dart';
 import 'package:mndesai/widgets/app_text_form_field.dart';
 
@@ -34,12 +33,24 @@ class _VirtualCardGenerationScreenState
   void initState() {
     super.initState();
 
+    _controller.mobileNoController.clear();
+    _controller.nameController.clear();
+    _controller.refCardNoController.clear();
+
     _controller.birthDateController.text = DateFormat('dd-MM-yyyy').format(
       DateTime.now(),
     );
-    _controller.cardIssueDateController.text = DateFormat('dd-MM-yyyy').format(
-      DateTime.now(),
-    );
+
+    initialize();
+  }
+
+  void initialize() async {
+    await _controller.getCardNo();
+
+    if (_controller.cardData.value != null) {
+      _controller.availableCardNoController.text =
+          _controller.cardData.value!.cardNo.toString();
+    }
   }
 
   @override
@@ -57,76 +68,88 @@ class _VirtualCardGenerationScreenState
             ),
             body: Padding(
               padding: AppPaddings.p14,
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _controller.virtualCardFenerationFormKey,
-                  child: Column(
-                    children: [
-                      AppTextFormField(
-                        controller: _controller.mobileNoController,
-                        hintText: 'Mobile No.',
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return 'Please enter a mobile number';
-                          }
-                          if (value.length != 10) {
-                            return 'Please enter a 10-digit mobile number';
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          MobileNumberInputFormatter(),
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                      ),
-                      AppSpaces.v10,
-                      AppTextFormField(
-                        controller: _controller.nameController,
-                        hintText: 'Name',
-                      ),
-                      AppSpaces.v10,
-                      AppDatePickerTextFormField(
-                        dateController: _controller.birthDateController,
-                        hintText: 'Birth Date',
-                      ),
-                      AppSpaces.v10,
-                      AppTextFormField(
-                        controller: _controller.availableCardNoController,
-                        hintText: 'Available Card No.',
-                      ),
-                      AppSpaces.v10,
-                      AppDatePickerTextFormField(
-                        dateController: _controller.cardIssueDateController,
-                        hintText: 'Card Issue Date',
-                      ),
-                      AppSpaces.v10,
-                      Obx(
-                        () => AppDropdown(
-                          items: [],
-                          hintText: 'Ref. Card No.',
-                          onChanged: (value) {
-                            _controller.selectedRefCardNo.value = value!;
-                          },
-                          selectedItem:
-                              _controller.selectedRefCardNo.value.isNotEmpty
-                                  ? _controller.selectedRefCardNo.value
-                                  : null,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _controller.virtualCardFenerationFormKey,
+                        child: Column(
+                          children: [
+                            AppTextFormField(
+                              controller: _controller.mobileNoController,
+                              hintText: 'Mobile No.',
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter a mobile number';
+                                }
+                                if (value.length != 10) {
+                                  return 'Please enter a 10-digit mobile number';
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: [
+                                MobileNumberInputFormatter(),
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                            ),
+                            AppSpaces.v10,
+                            AppTextFormField(
+                              controller: _controller.nameController,
+                              hintText: 'Name',
+                            ),
+                            AppSpaces.v10,
+                            AppDatePickerTextFormField(
+                              dateController: _controller.birthDateController,
+                              hintText: 'Birth Date',
+                            ),
+                            AppSpaces.v10,
+                            AppTextFormField(
+                              controller: _controller.availableCardNoController,
+                              hintText: 'Available Card No.',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Card no. cannot be empty';
+                                }
+                                return null;
+                              },
+                            ),
+                            AppSpaces.v10,
+                            AppTextFormField(
+                              controller: _controller.refCardNoController,
+                              hintText: 'Ref. Card No.',
+                            ),
+                          ],
                         ),
                       ),
-                      AppSpaces.v20,
-                      AppButton(
-                        title: 'Allot & Send SMS',
-                        onPressed: () {
-                          if (_controller
-                              .virtualCardFenerationFormKey.currentState!
-                              .validate()) {}
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  AppButton(
+                    title: 'Allot & Send SMS',
+                    onPressed: () async {
+                      if (_controller.virtualCardFenerationFormKey.currentState!
+                          .validate()) {
+                        await _controller.generateVirtualCard();
+
+                        _controller.mobileNoController.clear();
+                        _controller.nameController.clear();
+                        _controller.refCardNoController.clear();
+                        _controller.birthDateController.text =
+                            DateFormat('dd-MM-yyyy').format(
+                          DateTime.now(),
+                        );
+
+                        await _controller.getCardNo();
+                        if (_controller.cardData.value != null) {
+                          _controller.availableCardNoController.text =
+                              _controller.cardData.value!.cardNo.toString();
+                        }
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ),

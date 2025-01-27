@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
-import 'package:mndesai/features/authentication/forgot_password/screens/forgot_password_screen.dart';
 import 'package:mndesai/features/authentication/login/controllers/login_controller.dart';
 import 'package:mndesai/features/authentication/register/screens/register_screen.dart';
-import 'package:mndesai/features/bottom_nav/screens/bottom_nav_screen.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/formatters/text_input_formatters.dart';
@@ -100,11 +98,7 @@ class LoginScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           AppTextButton(
-                            onPressed: () {
-                              Get.to(
-                                () => ForgotPasswordScreen(),
-                              );
-                            },
+                            onPressed: () {},
                             title: 'Forgot Password?',
                             style: TextStyles.kRegularDMSans(
                               color: kColorPrimary,
@@ -125,9 +119,7 @@ class LoginScreen extends StatelessWidget {
                           FocusManager.instance.primaryFocus?.unfocus();
                           if (_controller.loginFormKey.currentState!
                               .validate()) {
-                            Get.to(
-                              () => BottomNavScreen(),
-                            );
+                            _controller.loginUser();
                           }
                         },
                       ),

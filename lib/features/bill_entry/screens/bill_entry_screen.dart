@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
-import 'package:mndesai/features/point_calculation/controllers/point_calculation_controller.dart';
-import 'package:mndesai/styles/font_sizes.dart';
-import 'package:mndesai/styles/text_styles.dart';
+import 'package:mndesai/features/bill_entry/controllers/bill_entry_controller.dart';
 import 'package:mndesai/utils/extensions/app_size_extensions.dart';
 import 'package:mndesai/utils/screen_utils/app_paddings.dart';
 import 'package:mndesai/utils/screen_utils/app_spacings.dart';
@@ -14,15 +12,19 @@ import 'package:mndesai/widgets/app_dropdown_search.dart';
 import 'package:mndesai/widgets/app_loading_overlay.dart';
 import 'package:mndesai/widgets/app_text_form_field.dart';
 
-class PointCalculationScreen extends StatelessWidget {
-  PointCalculationScreen({
+class BillEntryScreen extends StatefulWidget {
+  const BillEntryScreen({
     super.key,
   });
 
-  final PointCalculationController _controller = Get.put(
-    PointCalculationController(),
-  );
+  @override
+  State<BillEntryScreen> createState() => _BillEntryScreenState();
+}
 
+class _BillEntryScreenState extends State<BillEntryScreen> {
+  final BillEntryController _controller = Get.put(
+    BillEntryController(),
+  );
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -32,9 +34,8 @@ class PointCalculationScreen extends StatelessWidget {
             FocusManager.instance.primaryFocus?.unfocus();
           },
           child: Scaffold(
-            backgroundColor: kColorWhite,
             appBar: AppAppbar(
-              title: 'Points Calculation',
+              title: 'Bill Entry',
             ),
             body: Padding(
               padding: AppPaddings.p14,
@@ -43,6 +44,7 @@ class PointCalculationScreen extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Form(
+                        key: _controller.billEntryFormKey,
                         child: Column(
                           children: [
                             AppTextFormField(
@@ -60,16 +62,37 @@ class PointCalculationScreen extends StatelessWidget {
                               hintText: 'Card No.',
                             ),
                             AppSpaces.v10,
-                            AppTextFormField(
-                              controller: TextEditingController(),
-                              hintText: 'Member',
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 0.45.screenWidth,
+                                  child: AppTextFormField(
+                                    controller: TextEditingController(),
+                                    hintText: 'Vehicle Reg.',
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 0.45.screenWidth,
+                                  child: AppTextFormField(
+                                    controller: TextEditingController(),
+                                    hintText: 'Vehicle No.',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            AppSpaces.v10,
+                            AppDropdown(
+                              items: [],
+                              hintText: 'Vehicle No.',
+                              onChanged: (value) {},
                             ),
                             AppSpaces.v10,
                             AppTextFormField(
                               controller: TextEditingController(),
-                              hintText: 'Card Type',
+                              hintText: 'Remark',
                             ),
-                            AppSpaces.v20,
+                            AppSpaces.v10,
                             AppButton(
                               title: 'Add Product',
                               onPressed: () {
@@ -138,33 +161,9 @@ class PointCalculationScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Total Amount',
-                            style: TextStyles.kRegularDMSans(
-                              fontSize: FontSizes.k16FontSize,
-                            ),
-                          ),
-                          Text(
-                            '₹ 1000',
-                            style: TextStyles.kBoldDMSans(
-                              fontSize: FontSizes.k20FontSize,
-                            ),
-                          ),
-                        ],
-                      ),
-                      AppButton(
-                        buttonWidth: 0.5.screenWidth,
-                        title: 'Save',
-                        onPressed: () {},
-                      ),
-                    ],
+                  AppButton(
+                    title: 'Save',
+                    onPressed: () {},
                   ),
                 ],
               ),
