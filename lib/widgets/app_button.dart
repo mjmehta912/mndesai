@@ -3,6 +3,7 @@ import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/screen_utils/app_paddings.dart';
+import 'package:mndesai/utils/screen_utils/app_spacings.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -17,6 +18,7 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.loadingIndicatorColor,
+    this.icon,
   });
 
   final double? buttonHeight;
@@ -29,6 +31,7 @@ class AppButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
   final Color? loadingIndicatorColor;
+  final Widget? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +59,20 @@ class AppButton extends StatelessWidget {
                   strokeWidth: 2,
                 ),
               )
-            : Text(
-                title,
-                style: TextStyles.kSemiBoldDMSans(
-                  fontSize: titleSize ?? FontSizes.k18FontSize,
-                  color: titleColor ?? kColorWhite,
-                ),
-                textAlign: TextAlign.center,
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyles.kSemiBoldDMSans(
+                      fontSize: titleSize ?? FontSizes.k18FontSize,
+                      color: titleColor ?? kColorWhite,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  AppSpaces.h10,
+                  icon ?? const SizedBox.shrink(),
+                ],
               ),
       ),
     );

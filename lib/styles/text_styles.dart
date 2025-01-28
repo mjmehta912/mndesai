@@ -55,4 +55,17 @@ class TextStyles {
       fontFamily: Fonts.dmSansBold,
     );
   }
+
+  static TextStyle kBoldSofiaSansSemiCondensed({
+    double fontSize = FontSizes.k20FontSize,
+    Color color = kColorTextPrimary,
+    FontWeight fontWeight = FontWeight.w700,
+  }) {
+    return TextStyle(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      fontFamily: Fonts.sofiaSansSemiCondensedBold,
+    );
+  }
 }

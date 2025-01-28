@@ -1,6 +1,6 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/constants/image_constants.dart';
@@ -9,9 +9,7 @@ import 'package:mndesai/features/bottom_nav/controllers/bottom_nav_controller.da
 import 'package:mndesai/features/point_calculation/screens/points_calculation_screen.dart';
 import 'package:mndesai/features/profile/screens/profile_screen.dart';
 import 'package:mndesai/features/virtual_card_generation/screens/virtual_card_generation_screen.dart';
-
 import 'package:mndesai/utils/extensions/app_size_extensions.dart';
-import 'package:mndesai/utils/screen_utils/app_paddings.dart';
 
 class BottomNavScreen extends StatelessWidget {
   BottomNavScreen({
@@ -22,99 +20,124 @@ class BottomNavScreen extends StatelessWidget {
     BottomNavController(),
   );
 
-  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
-    GlobalKey<NavigatorState>(),
+  final List<Widget> pages = [
+    KeyedPage(
+      key: UniqueKey(),
+      page: const BillEntryScreen(),
+    ),
+    KeyedPage(
+      key: UniqueKey(),
+      page: const PointsCalculationScreen(),
+    ),
+    KeyedPage(
+      key: UniqueKey(),
+      page: const VirtualCardGenerationScreen(),
+    ),
+    KeyedPage(
+      key: UniqueKey(),
+      page: ProfileScreen(),
+    ),
   ];
-
-  List<Widget> get pages => [
-        BillEntryScreen(),
-        PointsCalculationScreen(),
-        VirtualCardGenerationScreen(),
-        ProfileScreen(),
-      ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Obx(
-        () => pages[_controller.selectedIndex.value],
-      ),
-      bottomNavigationBar: Obx(
-        () => Container(
-          height: 0.075.screenHeight,
-          padding: AppPaddings.p10,
-          decoration: BoxDecoration(
-            color: kColorPrimary,
-            borderRadius: BorderRadius.circular(10),
+    return WillPopScope(
+      onWillPop: () async {
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: kColorWhite,
+        body: Obx(
+          () => pages[_controller.selectedIndex.value],
+        ),
+        bottomNavigationBar: CurvedNavigationBar(
+          color: kColorPrimary,
+          buttonBackgroundColor: kColorWhite,
+          backgroundColor: kColorWhite,
+          animationDuration: const Duration(
+            milliseconds: 100,
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                icon: kIconBill,
-                iconFilled: kIconBillFilled,
-                index: 0,
-                isSelected: _controller.selectedIndex.value == 0,
-                onTap: () {
-                  _controller.changeIndex(0);
-                  _navigatorKeys[0].currentState?.pushReplacementNamed('/');
-                },
+          animationCurve: Curves.bounceIn,
+          height: 50.appHeight,
+          index: _controller.selectedIndex.value,
+          items: [
+            Obx(
+              () => SvgPicture.asset(
+                _controller.selectedIndex.value == 0
+                    ? kIconBillFilled
+                    : kIconBill,
+                height: 20.appHeight,
+                colorFilter: ColorFilter.mode(
+                  _controller.selectedIndex.value == 0
+                      ? kColorPrimary
+                      : kColorWhite,
+                  BlendMode.srcIn,
+                ),
               ),
-              _buildNavItem(
-                icon: kIconPoints,
-                iconFilled: kIconPointsFilled,
-                index: 1,
-                isSelected: _controller.selectedIndex.value == 1,
-                onTap: () {
-                  _controller.changeIndex(1);
-                  _navigatorKeys[1].currentState?.pushReplacementNamed('/');
-                },
+            ),
+            Obx(
+              () => SvgPicture.asset(
+                _controller.selectedIndex.value == 1
+                    ? kIconPointsFilled
+                    : kIconPoints,
+                height: 20.appHeight,
+                colorFilter: ColorFilter.mode(
+                  _controller.selectedIndex.value == 1
+                      ? kColorPrimary
+                      : kColorWhite,
+                  BlendMode.srcIn,
+                ),
               ),
-              _buildNavItem(
-                icon: kIconVirtualCard,
-                iconFilled: kIconVirtualCardFilled,
-                index: 2,
-                isSelected: _controller.selectedIndex.value == 2,
-                onTap: () {
-                  _controller.changeIndex(2);
-                  _navigatorKeys[2].currentState?.pushReplacementNamed('/');
-                },
+            ),
+            Obx(
+              () => SvgPicture.asset(
+                _controller.selectedIndex.value == 2
+                    ? kIconVirtualCardFilled
+                    : kIconVirtualCard,
+                height: 20.appHeight,
+                colorFilter: ColorFilter.mode(
+                  _controller.selectedIndex.value == 2
+                      ? kColorPrimary
+                      : kColorWhite,
+                  BlendMode.srcIn,
+                ),
               ),
-              _buildNavItem(
-                icon: kIconServices,
-                iconFilled: kIconServicesFilled,
-                index: 3,
-                isSelected: _controller.selectedIndex.value == 3,
-                onTap: () {
-                  _controller.changeIndex(3);
-                  _navigatorKeys[3].currentState?.pushReplacementNamed('/');
-                },
+            ),
+            Obx(
+              () => SvgPicture.asset(
+                _controller.selectedIndex.value == 3
+                    ? kIconServicesFilled
+                    : kIconServices,
+                height: 20.appHeight,
+                colorFilter: ColorFilter.mode(
+                  _controller.selectedIndex.value == 3
+                      ? kColorPrimary
+                      : kColorWhite,
+                  BlendMode.srcIn,
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
+          onTap: (index) {
+            _controller.changeIndex(index);
+          },
         ),
       ),
     );
   }
+}
 
-  Widget _buildNavItem({
-    required String icon,
-    required String iconFilled,
-    required int index,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: SvgPicture.asset(
-        isSelected ? iconFilled : icon,
-        height: 25,
-        colorFilter: ColorFilter.mode(kColorWhite, BlendMode.srcIn),
-      ),
-    );
+class KeyedPage extends StatelessWidget {
+  final Widget page;
+  const KeyedPage({
+    required Key key,
+    required this.page,
+  }) : super(
+          key: key,
+        );
+
+  @override
+  Widget build(BuildContext context) {
+    return page;
   }
 }

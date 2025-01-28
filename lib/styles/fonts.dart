@@ -3,4 +3,5 @@ class Fonts {
   static const dmSansMedium = 'DMSansMedium';
   static const dmSansSemiBold = 'DMSansSemiBold';
   static const dmSansBold = 'DMSansBold';
+  static const sofiaSansSemiCondensedBold = 'SofiaSansSemiCondensed-Bold';
 }

@@ -8,3 +8,5 @@ const kIconVirtualCard = 'assets/icons/virtual_card.svg';
 const kIconVirtualCardFilled = 'assets/icons/virtual_card_filled.svg';
 const kIconServices = 'assets/icons/settings.svg';
 const kIconServicesFilled = 'assets/icons/settings_filled.svg';
+
+const kImageBlankCard = 'assets/images/blank_card.png';

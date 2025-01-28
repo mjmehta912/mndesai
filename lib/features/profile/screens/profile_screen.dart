@@ -46,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
                 _controller.logoutUser();
               },
             ),
-            AppSpaces.v10,
+            AppSpaces.v20,
           ],
         ),
       ),

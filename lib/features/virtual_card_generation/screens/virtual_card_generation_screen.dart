@@ -127,7 +127,7 @@ class _VirtualCardGenerationScreenState
                     ),
                   ),
                   AppButton(
-                    title: 'Allot & Send SMS',
+                    title: 'Allot',
                     onPressed: () async {
                       if (_controller.virtualCardFenerationFormKey.currentState!
                           .validate()) {
@@ -149,6 +149,7 @@ class _VirtualCardGenerationScreenState
                       }
                     },
                   ),
+                  AppSpaces.v20,
                 ],
               ),
             ),
