@@ -414,9 +414,6 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                                                             .clear();
 
                                                         Get.back();
-
-                                                        print(_controller
-                                                            .addedProducts);
                                                       },
                                                     ),
                                                   ],
