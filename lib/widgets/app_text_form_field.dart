@@ -56,7 +56,7 @@ class AppTextFormField extends StatelessWidget {
       onChanged: onChanged,
       keyboardType: keyboardType ?? TextInputType.text,
       style: TextStyles.kMediumDMSans(
-        fontSize: fontSize ?? FontSizes.k18FontSize,
+        fontSize: fontSize ?? FontSizes.k16FontSize,
         color: kColorTextPrimary,
       ).copyWith(
         fontWeight: fontWeight ?? FontWeight.w400,

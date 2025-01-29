@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
                       Text(
                         'Let \'s sign you in',
                         style: TextStyles.kRegularDMSans(
-                          fontSize: FontSizes.k40FontSize,
+                          fontSize: FontSizes.k36FontSize,
                         ),
                       ),
                       AppSpaces.v30,

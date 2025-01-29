@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/features/profile/controllers/profile_controller.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/screen_utils/app_paddings.dart';
@@ -19,6 +20,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kColorWhite,
       appBar: AppAppbar(
         title: 'Services',
       ),

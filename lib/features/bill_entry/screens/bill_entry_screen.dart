@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/bill_entry/controllers/bill_entry_controller.dart';
+import 'package:mndesai/features/bill_entry/widgets/bill_entry_card.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
@@ -35,6 +36,19 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
   );
 
   @override
+  void initState() {
+    super.initState();
+
+    _controller.addedProducts.clear();
+    _controller.isCardNoFieldVisible.value = true;
+    _controller.isCardSelected.value = false;
+    _controller.cardNoController.clear();
+    _controller.srNoController.clear();
+    _controller.vehicleNoController.clear();
+    _controller.remarkController.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -43,6 +57,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
             FocusManager.instance.primaryFocus?.unfocus();
           },
           child: Scaffold(
+            backgroundColor: kColorWhite,
             appBar: AppAppbar(
               title: 'Bill Entry',
             ),
@@ -108,6 +123,10 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
 
                             _controller.customerNameController.text =
                                 'Cash Sales';
+                            _controller.dateController.text =
+                                DateFormat('dd-MM-yyyy').format(
+                              DateTime.now(),
+                            );
                           },
                           child: SizedBox(
                             width: 0.275.screenWidth,
@@ -129,7 +148,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                               child: Padding(
                                 padding: AppPaddings.p6,
                                 child: Text(
-                                  'Cash Sales',
+                                  'Cash',
                                   style: TextStyles.kMediumDMSans(
                                     color: !_controller.isCardSelected.value
                                         ? kColorWhite
@@ -209,176 +228,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                       )
                                     : Column(
                                         children: [
-                                          Stack(
-                                            children: [
-                                              Image.asset(
-                                                kImageBlankCard,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              Positioned(
-                                                left: 15,
-                                                top: 15,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      'Points Balance',
-                                                      style: TextStyles
-                                                          .kRegularDMSans(
-                                                        fontSize: FontSizes
-                                                            .k14FontSize,
-                                                        color: kColorWhite,
-                                                      ),
-                                                    ),
-                                                    Obx(
-                                                      () => Text(
-                                                        _controller.cardInfo
-                                                                    .value !=
-                                                                null
-                                                            ? _controller
-                                                                .cardInfo
-                                                                .value!
-                                                                .balance
-                                                                .toString()
-                                                            : '0.0',
-                                                        style: TextStyles
-                                                            .kBoldDMSans(
-                                                          color: kColorWhite,
-                                                          fontSize: FontSizes
-                                                              .k22FontSize,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: 15,
-                                                top: 15,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Obx(
-                                                      () => Text(
-                                                        'Serial #  ${_controller.cardInfo.value != null ? _controller.cardInfo.value!.pcSrNo : ''}',
-                                                        style: TextStyles
-                                                            .kRegularDMSans(
-                                                          fontSize: FontSizes
-                                                              .k14FontSize,
-                                                          color: kColorWhite,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      'Card #  ${_controller.cardNoController.text}',
-                                                      style: TextStyles
-                                                          .kRegularDMSans(
-                                                        fontSize: FontSizes
-                                                            .k14FontSize,
-                                                        color: kColorWhite,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Positioned(
-                                                left: 15,
-                                                bottom: 15,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      'Card Type',
-                                                      style: TextStyles
-                                                          .kRegularDMSans(
-                                                        color: kColorWhite,
-                                                        fontSize: FontSizes
-                                                            .k16FontSize,
-                                                      ),
-                                                    ),
-                                                    Obx(
-                                                      () => Text(
-                                                        _controller.cardInfo
-                                                                    .value !=
-                                                                null
-                                                            ? _controller
-                                                                .cardInfo
-                                                                .value!
-                                                                .cardType
-                                                            : '',
-                                                        style: TextStyles
-                                                            .kSemiBoldDMSans(
-                                                          color: kColorWhite,
-                                                          fontSize: FontSizes
-                                                              .k18FontSize,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: 15,
-                                                bottom: 15,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      DateFormat('dd MMM yyyy')
-                                                          .format(
-                                                        DateTime.now(),
-                                                      ),
-                                                      style: TextStyles
-                                                          .kBoldDMSans(
-                                                        color: kColorWhite,
-                                                        fontSize: FontSizes
-                                                            .k18FontSize,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      DateFormat('HH:mm')
-                                                          .format(
-                                                        DateTime.now(),
-                                                      ),
-                                                      style: TextStyles
-                                                          .kMediumDMSans(
-                                                        color: kColorWhite,
-                                                        fontSize: FontSizes
-                                                            .k16FontSize,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Positioned(
-                                                left: 15,
-                                                right: 0,
-                                                top: 0,
-                                                bottom: 0,
-                                                child: Obx(
-                                                  () => Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      _controller.cardInfo
-                                                                  .value !=
-                                                              null
-                                                          ? _controller.cardInfo
-                                                              .value!.member
-                                                          : '',
-                                                      style: TextStyles
-                                                          .kBoldSofiaSansSemiCondensed(
-                                                        color: kColorWhite,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
+                                          BillEntryCard(
+                                            controller: _controller,
                                           ),
                                           AppSpaces.v10,
                                           Row(
@@ -399,196 +250,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                       ?.unfocus();
                                                   await _controller
                                                       .getProducts();
-                                                  showDialog(
-                                                    // ignore: use_build_context_synchronously
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return Dialog(
-                                                        backgroundColor:
-                                                            kColorWhite,
-                                                        surfaceTintColor:
-                                                            kColorWhite,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
-                                                        ),
-                                                        child: Padding(
-                                                          padding: AppPaddings
-                                                              .combined(
-                                                            horizontal:
-                                                                15.appWidth,
-                                                            vertical:
-                                                                15.appHeight,
-                                                          ),
-                                                          child: Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Obx(
-                                                                () =>
-                                                                    AppDropdown(
-                                                                  items: _controller
-                                                                      .productNames,
-                                                                  hintText:
-                                                                      'Product',
-                                                                  onChanged:
-                                                                      (value) {
-                                                                    _controller
-                                                                        .onProductSelected(
-                                                                            value!);
-                                                                  },
-                                                                  selectedItem: _controller
-                                                                          .selectedProduct
-                                                                          .value
-                                                                          .isNotEmpty
-                                                                      ? _controller
-                                                                          .selectedProduct
-                                                                          .value
-                                                                      : null,
-                                                                ),
-                                                              ),
-                                                              AppSpaces.v10,
-                                                              AppTextFormField(
-                                                                controller:
-                                                                    _controller
-                                                                        .qtyController,
-                                                                hintText: 'Qty',
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                                onChanged:
-                                                                    (value) {
-                                                                  final qty =
-                                                                      double.tryParse(
-                                                                              value) ??
-                                                                          0;
-                                                                  final rate =
-                                                                      _controller
-                                                                          .selectedProductRate
-                                                                          .value;
-                                                                  _controller
-                                                                      .amountController
-                                                                      .text = (qty *
-                                                                          rate)
-                                                                      .toStringAsFixed(
-                                                                          2);
-                                                                },
-                                                              ),
-                                                              AppSpaces.v10,
-                                                              AppTextFormField(
-                                                                controller:
-                                                                    _controller
-                                                                        .rateController,
-                                                                hintText:
-                                                                    'Rate',
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                              ),
-                                                              AppSpaces.v10,
-                                                              AppTextFormField(
-                                                                controller:
-                                                                    _controller
-                                                                        .amountController,
-                                                                hintText:
-                                                                    'Amount',
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                                onChanged:
-                                                                    (value) {
-                                                                  final amount =
-                                                                      double.tryParse(
-                                                                              value) ??
-                                                                          0;
-                                                                  final rate =
-                                                                      _controller
-                                                                          .selectedProductRate
-                                                                          .value;
-                                                                  if (rate !=
-                                                                      0) {
-                                                                    _controller
-                                                                        .qtyController
-                                                                        .text = (amount /
-                                                                            rate)
-                                                                        .toStringAsFixed(
-                                                                            2);
-                                                                  }
-                                                                },
-                                                              ),
-                                                              AppSpaces.v20,
-                                                              AppButton(
-                                                                title: 'Add',
-                                                                onPressed: () {
-                                                                  final productName =
-                                                                      _controller
-                                                                          .selectedProduct
-                                                                          .value;
-                                                                  final qty =
-                                                                      _controller
-                                                                          .qtyController
-                                                                          .text;
-                                                                  final rate =
-                                                                      _controller
-                                                                          .rateController
-                                                                          .text;
-                                                                  final amount =
-                                                                      _controller
-                                                                          .amountController
-                                                                          .text;
-
-                                                                  // Create a map for the new product
-                                                                  final addedProduct =
-                                                                      {
-                                                                    'productName':
-                                                                        productName,
-                                                                    'qty': qty,
-                                                                    'rate':
-                                                                        rate,
-                                                                    'amount':
-                                                                        amount,
-                                                                  };
-
-                                                                  // Add the product to the list
-                                                                  _controller
-                                                                      .addedProducts
-                                                                      .add(
-                                                                          addedProduct);
-
-                                                                  _controller
-                                                                      .selectedProduct
-                                                                      .value = '';
-                                                                  _controller
-                                                                      .selectedProductCode
-                                                                      .value = '';
-                                                                  _controller
-                                                                      .selectedProductShortName
-                                                                      .value = '';
-                                                                  _controller
-                                                                      .selectedProductRate
-                                                                      .value = 0.0;
-                                                                  _controller
-                                                                      .qtyController
-                                                                      .clear();
-                                                                  _controller
-                                                                      .rateController
-                                                                      .clear();
-                                                                  _controller
-                                                                      .amountController
-                                                                      .clear();
-
-                                                                  Get.back();
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
+                                                  _showAddProductDialog();
                                                 },
                                               ),
                                             ],
@@ -605,61 +267,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                 final product = _controller
                                                     .addedProducts[index];
 
-                                                return Card(
-                                                  color: kColorWhite,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    side: BorderSide(
-                                                      color: kColorPrimary,
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: AppPaddings.p6,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          product[
-                                                              'productName'],
-                                                          style: TextStyles
-                                                              .kMediumDMSans(
-                                                            color:
-                                                                kColorTextPrimary,
-                                                            fontSize: FontSizes
-                                                                .k18FontSize,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          product['qty'],
-                                                          style: TextStyles
-                                                              .kMediumDMSans(
-                                                            color:
-                                                                kColorTextPrimary,
-                                                            fontSize: FontSizes
-                                                                .k18FontSize,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          product['amount'],
-                                                          style: TextStyles
-                                                              .kMediumDMSans(
-                                                            color:
-                                                                kColorTextPrimary,
-                                                            fontSize: FontSizes
-                                                                .k18FontSize,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
+                                                return _addedProductCard(
+                                                    product);
                                               },
                                             ),
                                           ),
@@ -723,175 +332,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                             FocusManager.instance.primaryFocus
                                                 ?.unfocus();
                                             await _controller.getProducts();
-                                            showDialog(
-                                              // ignore: use_build_context_synchronously
-                                              context: context,
-                                              builder: (context) {
-                                                return Dialog(
-                                                  backgroundColor: kColorWhite,
-                                                  surfaceTintColor: kColorWhite,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        AppPaddings.combined(
-                                                      horizontal: 15.appWidth,
-                                                      vertical: 15.appHeight,
-                                                    ),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Obx(
-                                                          () => AppDropdown(
-                                                            items: _controller
-                                                                .productNames,
-                                                            hintText: 'Product',
-                                                            onChanged: (value) {
-                                                              _controller
-                                                                  .onProductSelected(
-                                                                      value!);
-                                                            },
-                                                            selectedItem: _controller
-                                                                    .selectedProduct
-                                                                    .value
-                                                                    .isNotEmpty
-                                                                ? _controller
-                                                                    .selectedProduct
-                                                                    .value
-                                                                : null,
-                                                          ),
-                                                        ),
-                                                        AppSpaces.v10,
-                                                        AppTextFormField(
-                                                          controller: _controller
-                                                              .qtyController,
-                                                          hintText: 'Qty',
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                          onChanged: (value) {
-                                                            final qty =
-                                                                double.tryParse(
-                                                                        value) ??
-                                                                    0;
-                                                            final rate = _controller
-                                                                .selectedProductRate
-                                                                .value;
-                                                            _controller
-                                                                .amountController
-                                                                .text = (qty *
-                                                                    rate)
-                                                                .toStringAsFixed(
-                                                                    2);
-                                                          },
-                                                        ),
-                                                        AppSpaces.v10,
-                                                        AppTextFormField(
-                                                          controller: _controller
-                                                              .rateController,
-                                                          hintText: 'Rate',
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                        ),
-                                                        AppSpaces.v10,
-                                                        AppTextFormField(
-                                                          controller: _controller
-                                                              .amountController,
-                                                          hintText: 'Amount',
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                          onChanged: (value) {
-                                                            final amount =
-                                                                double.tryParse(
-                                                                        value) ??
-                                                                    0;
-                                                            final rate = _controller
-                                                                .selectedProductRate
-                                                                .value;
-                                                            if (rate != 0) {
-                                                              _controller
-                                                                  .qtyController
-                                                                  .text = (amount /
-                                                                      rate)
-                                                                  .toStringAsFixed(
-                                                                      2);
-                                                            }
-                                                          },
-                                                        ),
-                                                        AppSpaces.v20,
-                                                        AppButton(
-                                                          title: 'Add',
-                                                          onPressed: () {
-                                                            final productName =
-                                                                _controller
-                                                                    .selectedProduct
-                                                                    .value;
-                                                            final qty =
-                                                                _controller
-                                                                    .qtyController
-                                                                    .text;
-                                                            final rate =
-                                                                _controller
-                                                                    .rateController
-                                                                    .text;
-                                                            final amount =
-                                                                _controller
-                                                                    .amountController
-                                                                    .text;
-
-                                                            // Create a map for the new product
-                                                            final addedProduct =
-                                                                {
-                                                              'productName':
-                                                                  productName,
-                                                              'qty': qty,
-                                                              'rate': rate,
-                                                              'amount': amount,
-                                                            };
-
-                                                            // Add the product to the list
-                                                            _controller
-                                                                .addedProducts
-                                                                .add(
-                                                                    addedProduct);
-
-                                                            _controller
-                                                                .selectedProduct
-                                                                .value = '';
-                                                            _controller
-                                                                .selectedProductCode
-                                                                .value = '';
-                                                            _controller
-                                                                .selectedProductShortName
-                                                                .value = '';
-                                                            _controller
-                                                                .selectedProductRate
-                                                                .value = 0.0;
-                                                            _controller
-                                                                .qtyController
-                                                                .clear();
-                                                            _controller
-                                                                .rateController
-                                                                .clear();
-                                                            _controller
-                                                                .amountController
-                                                                .clear();
-
-                                                            Get.back();
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            );
+                                            _showAddProductDialog();
                                           },
                                         ),
                                       ],
@@ -907,55 +348,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                           final product =
                                               _controller.addedProducts[index];
 
-                                          return Card(
-                                            color: kColorWhite,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              side: BorderSide(
-                                                color: kColorPrimary,
-                                              ),
-                                            ),
-                                            child: Padding(
-                                              padding: AppPaddings.p6,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    product['productName'],
-                                                    style: TextStyles
-                                                        .kMediumDMSans(
-                                                      color: kColorTextPrimary,
-                                                      fontSize:
-                                                          FontSizes.k18FontSize,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    product['qty'],
-                                                    style: TextStyles
-                                                        .kMediumDMSans(
-                                                      color: kColorTextPrimary,
-                                                      fontSize:
-                                                          FontSizes.k18FontSize,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    product['amount'],
-                                                    style: TextStyles
-                                                        .kMediumDMSans(
-                                                      color: kColorTextPrimary,
-                                                      fontSize:
-                                                          FontSizes.k18FontSize,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
+                                          return _addedProductCard(product);
                                         },
                                       ),
                                     ),
@@ -983,6 +376,138 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Card _addedProductCard(Map<String, dynamic> product) {
+    return Card(
+      color: kColorWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+          color: kColorPrimary,
+        ),
+      ),
+      child: Padding(
+        padding: AppPaddings.p6,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              product['productName'],
+              style: TextStyles.kMediumDMSans(
+                color: kColorTextPrimary,
+                fontSize: FontSizes.k18FontSize,
+              ),
+            ),
+            Text(
+              product['qty'],
+              style: TextStyles.kMediumDMSans(
+                color: kColorTextPrimary,
+                fontSize: FontSizes.k18FontSize,
+              ),
+            ),
+            Text(
+              product['amount'],
+              style: TextStyles.kMediumDMSans(
+                color: kColorTextPrimary,
+                fontSize: FontSizes.k18FontSize,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddProductDialog() {
+    showDialog(
+      context: Get.context!,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: kColorWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: AppPaddings.combined(
+              horizontal: 15.appWidth,
+              vertical: 15.appHeight,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Obx(
+                  () => AppDropdown(
+                    items: _controller.productNames,
+                    hintText: 'Product',
+                    onChanged: (value) => _controller.onProductSelected(value!),
+                    selectedItem: _controller.selectedProduct.value.isNotEmpty
+                        ? _controller.selectedProduct.value
+                        : null,
+                  ),
+                ),
+                AppSpaces.v10,
+                AppTextFormField(
+                  controller: _controller.qtyController,
+                  hintText: 'Qty',
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final qty = double.tryParse(value) ?? 0;
+                    final rate = _controller.selectedProductRate.value;
+                    _controller.amountController.text =
+                        (qty * rate).toStringAsFixed(2);
+                  },
+                ),
+                AppSpaces.v10,
+                AppTextFormField(
+                  controller: _controller.rateController,
+                  hintText: 'Rate',
+                  keyboardType: TextInputType.number,
+                  onChanged: null,
+                ),
+                AppSpaces.v10,
+                AppTextFormField(
+                  controller: _controller.amountController,
+                  hintText: 'Amount',
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final amount = double.tryParse(value) ?? 0;
+                    final rate = _controller.selectedProductRate.value;
+                    if (rate != 0) {
+                      _controller.qtyController.text =
+                          (amount / rate).toStringAsFixed(2);
+                    }
+                  },
+                ),
+                AppSpaces.v20,
+                AppButton(
+                  title: 'Add',
+                  onPressed: () {
+                    _controller.addedProducts.add({
+                      'productName': _controller.selectedProduct.value,
+                      'qty': _controller.qtyController.text,
+                      'rate': _controller.rateController.text,
+                      'amount': _controller.amountController.text,
+                    });
+
+                    _controller.selectedProduct.value = '';
+                    _controller.selectedProductCode.value = '';
+                    _controller.selectedProductShortName.value = '';
+                    _controller.selectedProductRate.value = 0.0;
+                    _controller.qtyController.clear();
+                    _controller.rateController.clear();
+                    _controller.amountController.clear();
+
+                    Get.back();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

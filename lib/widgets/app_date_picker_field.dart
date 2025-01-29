@@ -111,7 +111,7 @@ class _AppDatePickerTextFormFieldState
       enabled: widget.enabled,
       validator: widget.validator,
       style: TextStyles.kMediumDMSans(
-        fontSize: FontSizes.k18FontSize,
+        fontSize: FontSizes.k16FontSize,
         color: kColorTextPrimary,
       ),
       readOnly: true,

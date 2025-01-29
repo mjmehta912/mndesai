@@ -46,7 +46,7 @@ class RegisterScreen extends StatelessWidget {
                         'Create account',
                         style: TextStyles.kRegularDMSans(
                           color: kColorTextPrimary,
-                          fontSize: FontSizes.k40FontSize,
+                          fontSize: FontSizes.k36FontSize,
                         ),
                       ),
                       AppSpaces.v30,
