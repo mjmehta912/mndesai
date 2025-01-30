@@ -41,6 +41,8 @@ class _VirtualCardGenerationScreenState
       DateTime.now(),
     );
 
+    _controller.nameController.text = 'Alloted';
+
     initialize();
   }
 
@@ -118,6 +120,7 @@ class _VirtualCardGenerationScreenState
                                 }
                                 return null;
                               },
+                              enabled: false,
                             ),
                             AppSpaces.v10,
                             AppTextFormField(

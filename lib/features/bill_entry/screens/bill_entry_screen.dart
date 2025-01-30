@@ -275,13 +275,24 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                   _controller.cardNoController
                                                           .text.length ==
                                                       10) {
-                                                await _controller.getCardInfo();
-                                                _controller
-                                                    .toggleCardVisibility();
-
                                                 FocusManager
                                                     .instance.primaryFocus
                                                     ?.unfocus();
+                                                await _controller.getCardInfo();
+
+                                                if (_controller
+                                                        .cardInfo.value !=
+                                                    null) {
+                                                  _controller
+                                                      .toggleCardVisibility();
+                                                } else {
+                                                  _controller.cardNoController
+                                                      .clear();
+                                                  showErrorSnackbar(
+                                                    'Error',
+                                                    'Mobile No. or Card No. doesnot exist',
+                                                  );
+                                                }
                                               } else {
                                                 showErrorSnackbar(
                                                   'Invalid',

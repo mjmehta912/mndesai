@@ -38,8 +38,10 @@ class BillEntryCard extends StatelessWidget {
               ),
               Obx(
                 () => Text(
-                  _controller.cardInfo.value!.balance != null
-                      ? _controller.cardInfo.value!.balance.toString()
+                  _controller.cardInfo.value != null
+                      ? _controller.cardInfo.value!.balance != null
+                          ? _controller.cardInfo.value!.balance.toString()
+                          : '0.0'
                       : '0.0',
                   style: TextStyles.kBoldDMSans(
                     color: kColorWhite,
