@@ -54,8 +54,8 @@ class VirtualCardGenerationController extends GetxController {
       if (response != null && response.containsKey('message')) {
         String message = response['message'];
 
-        showSuccessSnackbar(
-          'Success',
+        showSuccessDialog(
+          Get.context!,
           message,
         );
       }

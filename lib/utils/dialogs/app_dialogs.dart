@@ -128,7 +128,7 @@ void showSuccessDialog(
             children: [
               Image.asset(
                 kSuccessLottieGif,
-                height: 200,
+                height: 100,
                 fit: BoxFit.cover,
               ),
               Text(

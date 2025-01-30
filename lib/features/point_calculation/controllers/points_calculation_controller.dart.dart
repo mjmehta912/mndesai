@@ -52,9 +52,6 @@ class PointsCalculationController extends GetxController {
     qtyController.clear();
     rateController.clear();
     amountController.clear();
-
-    print(addedProducts);
-    print('Total Amount: $totalAmount');
   }
 
   void deleteProduct(int index) {
@@ -63,9 +60,6 @@ class PointsCalculationController extends GetxController {
     for (var i = index; i < addedProducts.length; i++) {
       addedProducts[i]["SRNO"] = i + 1;
     }
-
-    print(addedProducts);
-    print('Total Amount: $totalAmount');
   }
 
   Future<void> getCardInfo() async {
@@ -155,8 +149,8 @@ class PointsCalculationController extends GetxController {
 
       if (response != null && response.containsKey('message')) {
         String message = response['message'];
-        showSuccessSnackbar(
-          'Success',
+        showSuccessDialog(
+          Get.context!,
           message,
         );
 

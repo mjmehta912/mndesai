@@ -116,8 +116,6 @@ class BillEntryRepo {
         "ItemData": items,
       };
 
-      print(requestBody);
-
       var response = await ApiService.postRequest(
         endpoint: '/MobileEntry/save',
         requestBody: requestBody,

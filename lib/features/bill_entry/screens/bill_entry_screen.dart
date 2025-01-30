@@ -43,8 +43,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
     _controller.cardNoController.clear();
     _controller.vehicleNos.clear();
     _controller.vehicleNoController.clear();
-    _controller.remarkController.clear();
     _controller.cardInfo.value = null;
+    _controller.remarkController.clear();
     _controller.customerNameController.text = 'Cash Sales';
   }
 
@@ -98,11 +98,12 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                         GestureDetector(
                           onTap: () {
                             _controller.isCardSelected.value = true;
+                            _controller.isCardNoFieldVisible.value = true;
                             _controller.addedProducts.clear();
-                            _controller.customerNameController.clear();
+                            _controller.cardNoController.clear();
                             _controller.vehicleNoController.clear();
                             _controller.vehicleNos.clear();
-                            _controller.remarkController.clear();
+                            _controller.cardInfo.value = null;
                           },
                           child: SizedBox(
                             width: 0.275.screenWidth,
@@ -142,10 +143,10 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                         GestureDetector(
                           onTap: () {
                             _controller.isCardSelected.value = false;
-                            _controller.isCardNoFieldVisible.value = true;
-                            _controller.cardNoController.clear();
                             _controller.addedProducts.clear();
-
+                            _controller.vehicleNoController.clear();
+                            _controller.vehicleNos.clear();
+                            _controller.remarkController.clear();
                             _controller.customerNameController.text =
                                 'Cash Sales';
                           },
@@ -301,17 +302,13 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                 .addedProducts.isEmpty,
                                             inputFormatters: [
                                               FilteringTextInputFormatter.allow(
-                                                RegExp(r'[a-zA-Z0-9]'),
-                                              ),
+                                                  RegExp(r'[a-zA-Z0-9]')),
                                               UpperCaseTextInputFormatter(),
                                             ],
                                             onChanged: (value) {
                                               if (value.isNotEmpty) {
                                                 _controller.getVehicleNos(
                                                     searchText: value);
-
-                                                print(_controller
-                                                    .vehicleNoController.text);
                                               } else {
                                                 _controller.vehicleNos.clear();
                                               }
@@ -329,10 +326,34 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                     Container(
                                                       decoration: BoxDecoration(
                                                         color: kColorWhite,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                        border: Border.all(
+                                                            color: kColorGrey
+                                                                .withOpacity(
+                                                                    0.3)),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: kColorGrey
+                                                                .withOpacity(
+                                                                    0.2),
+                                                            blurRadius: 5,
+                                                            offset:
+                                                                const Offset(
+                                                                    0, 3),
+                                                          ),
+                                                        ],
                                                       ),
-                                                      height: 0.15.screenHeight,
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        maxHeight:
+                                                            0.2.screenHeight,
+                                                      ),
                                                       child: ListView.builder(
                                                         shrinkWrap: true,
+                                                        physics:
+                                                            const ClampingScrollPhysics(),
                                                         itemCount: _controller
                                                             .vehicleNos.length,
                                                         itemBuilder:
@@ -355,20 +376,30 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                   .instance
                                                                   .primaryFocus
                                                                   ?.unfocus();
-
-                                                              print(_controller
-                                                                  .vehicleNoController
-                                                                  .text);
                                                             },
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                SizedBox(
-                                                                  width: double
-                                                                      .infinity,
-                                                                  child: Text(
+                                                            child: Container(
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                horizontal:
+                                                                    15.appWidth,
+                                                                vertical:
+                                                                    8.appHeight,
+                                                              ),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                color:
+                                                                    kColorWhite,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  Text(
                                                                     vehicleNo
                                                                         .vehicleNo,
                                                                     style: TextStyles
@@ -378,16 +409,19 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                               .k16FontSize,
                                                                     ),
                                                                   ),
-                                                                ),
-                                                                if (_controller
-                                                                        .vehicleNos
-                                                                        .length >
-                                                                    1)
-                                                                  Divider(
-                                                                    color:
-                                                                        kColorGrey,
-                                                                  ),
-                                                              ],
+                                                                  if (index !=
+                                                                      _controller
+                                                                              .vehicleNos
+                                                                              .length -
+                                                                          1)
+                                                                    Divider(
+                                                                      color: kColorGrey
+                                                                          .withOpacity(
+                                                                              0.3),
+                                                                      height: 1,
+                                                                    ),
+                                                                ],
+                                                              ),
                                                             ),
                                                           );
                                                         },
@@ -469,17 +503,13 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                           _controller.addedProducts.isEmpty,
                                       inputFormatters: [
                                         FilteringTextInputFormatter.allow(
-                                          RegExp(r'[a-zA-Z0-9]'),
-                                        ),
+                                            RegExp(r'[a-zA-Z0-9]')),
                                         UpperCaseTextInputFormatter(),
                                       ],
                                       onChanged: (value) {
                                         if (value.isNotEmpty) {
                                           _controller.getVehicleNos(
                                               searchText: value);
-
-                                          print(_controller
-                                              .vehicleNoController.text);
                                         } else {
                                           _controller.vehicleNos.clear();
                                         }
@@ -496,10 +526,28 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                               Container(
                                                 decoration: BoxDecoration(
                                                   color: kColorWhite,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  border: Border.all(
+                                                      color: kColorGrey
+                                                          .withOpacity(0.3)),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: kColorGrey
+                                                          .withOpacity(0.2),
+                                                      blurRadius: 5,
+                                                      offset:
+                                                          const Offset(0, 3),
+                                                    ),
+                                                  ],
                                                 ),
-                                                height: 0.15.screenHeight,
+                                                constraints: BoxConstraints(
+                                                  maxHeight: 0.2.screenHeight,
+                                                ),
                                                 child: ListView.builder(
                                                   shrinkWrap: true,
+                                                  physics:
+                                                      const ClampingScrollPhysics(),
                                                   itemCount: _controller
                                                       .vehicleNos.length,
                                                   itemBuilder:
@@ -518,20 +566,27 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                         FocusManager.instance
                                                             .primaryFocus
                                                             ?.unfocus();
-
-                                                        print(_controller
-                                                            .vehicleNoController
-                                                            .text);
                                                       },
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          SizedBox(
-                                                            width:
-                                                                double.infinity,
-                                                            child: Text(
+                                                      child: Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal:
+                                                              15.appWidth,
+                                                          vertical: 8.appHeight,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: kColorWhite,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
                                                               vehicleNo
                                                                   .vehicleNo,
                                                               style: TextStyles
@@ -540,15 +595,19 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                     .k16FontSize,
                                                               ),
                                                             ),
-                                                          ),
-                                                          if (_controller
-                                                                  .vehicleNos
-                                                                  .length >
-                                                              1)
-                                                            Divider(
-                                                              color: kColorGrey,
-                                                            ),
-                                                        ],
+                                                            if (index !=
+                                                                _controller
+                                                                        .vehicleNos
+                                                                        .length -
+                                                                    1)
+                                                              Divider(
+                                                                color: kColorGrey
+                                                                    .withOpacity(
+                                                                        0.3),
+                                                                height: 1,
+                                                              ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     );
                                                   },

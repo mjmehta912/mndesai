@@ -61,9 +61,6 @@ class BillEntryController extends GetxController {
     qtyController.clear();
     rateController.clear();
     amountController.clear();
-
-    print(addedProducts);
-    print('Total Amount: $totalAmount');
   }
 
   void deleteProduct(int index) {
@@ -72,9 +69,6 @@ class BillEntryController extends GetxController {
     for (var i = index; i < addedProducts.length; i++) {
       addedProducts[i]["SRNO"] = i + 1;
     }
-
-    print(addedProducts);
-    print('Total Amount: $totalAmount');
   }
 
   Future<void> getProducts() async {

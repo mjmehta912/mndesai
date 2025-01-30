@@ -55,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(kImageSplashBg),
-            fit: BoxFit.cover, // This will cover the entire screen
+            fit: BoxFit.cover,
           ),
         ),
       ),
