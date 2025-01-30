@@ -28,6 +28,46 @@ class PointsCalculationController extends GetxController {
 
   var addedProducts = <Map<String, dynamic>>[].obs;
 
+  double get totalAmount {
+    return addedProducts.fold(
+        0.0, (sum, product) => sum + (product['AMOUNT'] as double));
+  }
+
+  void addProduct() {
+    final srNo = addedProducts.length + 1;
+    final product = {
+      "SRNO": srNo,
+      "ICODE": selectedProductCode.value,
+      "PRODUCT_NAME": selectedProduct.value,
+      "QTY": double.tryParse(qtyController.text) ?? 0.0,
+      "RATE": double.tryParse(rateController.text) ?? 0.0,
+      "AMOUNT": double.tryParse(amountController.text) ?? 0.0,
+    };
+    addedProducts.add(product);
+
+    selectedProduct.value = '';
+    selectedProductCode.value = '';
+    selectedProductShortName.value = '';
+    selectedProductRate.value = 0.0;
+    qtyController.clear();
+    rateController.clear();
+    amountController.clear();
+
+    print(addedProducts);
+    print('Total Amount: $totalAmount');
+  }
+
+  void deleteProduct(int index) {
+    addedProducts.removeAt(index);
+
+    for (var i = index; i < addedProducts.length; i++) {
+      addedProducts[i]["SRNO"] = i + 1;
+    }
+
+    print(addedProducts);
+    print('Total Amount: $totalAmount');
+  }
+
   Future<void> getCardInfo() async {
     isLoading.value = true;
     try {
@@ -78,11 +118,67 @@ class PointsCalculationController extends GetxController {
     selectedProductCode.value = productObj.iCode;
     selectedProductShortName.value = productObj.shortName;
     if (productObj.rate != null) {
+      qtyController.clear();
+      amountController.clear();
       selectedProductRate.value = productObj.rate!;
     } else {
       selectedProductRate.value = 0.0;
     }
 
     rateController.text = selectedProductRate.value.toString();
+  }
+
+  Future<void> savePointsEntry() async {
+    isLoading.value = true;
+
+    try {
+      List<Map<String, dynamic>> itemsToSend = addedProducts.map(
+        (product) {
+          return {
+            "SRNO": product["SRNO"],
+            "ICODE": product["ICODE"],
+            "QTY": product["QTY"],
+            "RATE": product["RATE"],
+          };
+        },
+      ).toList();
+
+      var response = await PointsCalculationRepo.savePointsEntry(
+        type: 'P',
+        pCode: cardInfo.value != null ? cardInfo.value!.pCode : '',
+        amount: totalAmount,
+        vehicleNo: '',
+        cardNo: cardInfo.value != null ? cardInfo.value!.cardNo.toString() : '',
+        typeCode: cardInfo.value != null ? cardInfo.value!.typeCode : '',
+        items: itemsToSend,
+      );
+
+      if (response != null && response.containsKey('message')) {
+        String message = response['message'];
+        showSuccessSnackbar(
+          'Success',
+          message,
+        );
+
+        cardNoController.clear();
+        addedProducts.clear();
+        cardInfo.value = null;
+        toggleCardVisibility();
+      }
+    } catch (e) {
+      if (e is Map<String, dynamic>) {
+        showErrorSnackbar(
+          'Error',
+          e['message'],
+        );
+      } else {
+        showErrorSnackbar(
+          'Error',
+          e.toString(),
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

@@ -10,3 +10,6 @@ const kIconServices = 'assets/icons/settings.svg';
 const kIconServicesFilled = 'assets/icons/settings_filled.svg';
 
 const kImageBlankCard = 'assets/images/blank_card.png';
+const kImageSplashBg = 'assets/images/splash_bg.png';
+
+const kSuccessLottieGif = 'assets/images/success_lottie.gif';

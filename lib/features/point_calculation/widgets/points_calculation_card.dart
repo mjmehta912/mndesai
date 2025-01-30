@@ -38,7 +38,7 @@ class PointsCalculationCard extends StatelessWidget {
               ),
               Obx(
                 () => Text(
-                  _controller.cardInfo.value != null
+                  _controller.cardInfo.value!.balance != null
                       ? _controller.cardInfo.value!.balance.toString()
                       : '0.0',
                   style: TextStyles.kBoldDMSans(
@@ -65,11 +65,13 @@ class PointsCalculationCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                'Card #  ${_controller.cardNoController.text}',
-                style: TextStyles.kRegularDMSans(
-                  fontSize: FontSizes.k14FontSize,
-                  color: kColorWhite,
+              Obx(
+                () => Text(
+                  'Card #  ${_controller.cardInfo.value != null ? _controller.cardInfo.value!.cardNo : ''}',
+                  style: TextStyles.kRegularDMSans(
+                    fontSize: FontSizes.k14FontSize,
+                    color: kColorWhite,
+                  ),
                 ),
               ),
             ],

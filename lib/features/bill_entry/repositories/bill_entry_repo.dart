@@ -1,3 +1,4 @@
+import 'package:mndesai/features/bill_entry/models/vehicle_no_dm.dart';
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
 import 'package:mndesai/services/api_service.dart';
@@ -51,6 +52,78 @@ class BillEntryRepo {
       } else {
         return null;
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<List<VehicleNoDm>> getVehicleNos({
+    required String pCode,
+    String searchText = '',
+  }) async {
+    String? token = await SecureStorageHelper.read(
+      'token',
+    );
+
+    try {
+      final response = await ApiService.getRequest(
+        endpoint: '/MobileEntry/vehicle',
+        token: token,
+        queryParams: {
+          'PCODE': pCode,
+          'SearchText': searchText,
+        },
+      );
+      if (response == null) {
+        return [];
+      }
+
+      if (response['data'] != null) {
+        return (response['data'] as List<dynamic>)
+            .map(
+              (item) => VehicleNoDm.fromJson(item),
+            )
+            .toList();
+      }
+
+      return [];
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> saveBillEntry({
+    required String type,
+    required String pCode,
+    required double amount,
+    required String vehicleNo,
+    required String cardNo,
+    required String typeCode,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    String? token = await SecureStorageHelper.read(
+      'token',
+    );
+
+    try {
+      final Map<String, dynamic> requestBody = {
+        "TYPE": type,
+        "PCODE": pCode,
+        "AMOUNT": amount,
+        "VEHICLENO": vehicleNo,
+        "CARDNO": cardNo,
+        "TYPECODE": typeCode,
+        "ItemData": items,
+      };
+
+      print(requestBody);
+
+      var response = await ApiService.postRequest(
+        endpoint: '/MobileEntry/save',
+        requestBody: requestBody,
+        token: token,
+      );
+      return response;
     } catch (e) {
       rethrow;
     }

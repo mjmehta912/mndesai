@@ -53,4 +53,39 @@ class PointsCalculationRepo {
       rethrow;
     }
   }
+
+  static Future<dynamic> savePointsEntry({
+    required String type,
+    required String pCode,
+    required double amount,
+    required String vehicleNo,
+    required String cardNo,
+    required String typeCode,
+    required List<Map<String, dynamic>> items,
+  }) async {
+    String? token = await SecureStorageHelper.read(
+      'token',
+    );
+
+    try {
+      final Map<String, dynamic> requestBody = {
+        "TYPE": type,
+        "PCODE": pCode,
+        "AMOUNT": amount,
+        "VEHICLENO": vehicleNo,
+        "CARDNO": cardNo,
+        "TYPECODE": typeCode,
+        "ItemData": items,
+      };
+
+      var response = await ApiService.postRequest(
+        endpoint: '/MobileEntry/save',
+        requestBody: requestBody,
+        token: token,
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

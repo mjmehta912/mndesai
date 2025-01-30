@@ -77,6 +77,10 @@ class AppTextFormField extends StatelessWidget {
           borderColor: kColorLightGrey,
           borderWidth: 1,
         ),
+        disabledBorder: outlineInputBorder(
+          borderColor: kColorLightGrey,
+          borderWidth: 1,
+        ),
         focusedBorder: outlineInputBorder(
           borderColor: kColorTextPrimary,
           borderWidth: 1,

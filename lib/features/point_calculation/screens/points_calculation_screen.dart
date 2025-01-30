@@ -38,8 +38,9 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
   void initState() {
     super.initState();
     _controller.cardNoController.clear();
-    _controller.isCardNoFieldVisible.value = true;
     _controller.addedProducts.clear();
+    _controller.cardInfo.value = null;
+    _controller.isCardNoFieldVisible.value = true;
   }
 
   @override
@@ -54,6 +55,23 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
             backgroundColor: kColorWhite,
             appBar: AppAppbar(
               title: 'Points Calculation',
+              actions: [
+                Obx(
+                  () => !_controller.isCardNoFieldVisible.value
+                      ? IconButton(
+                          onPressed: () {
+                            _controller.cardNoController.clear();
+                            _controller.addedProducts.clear();
+                            _controller.cardInfo.value = null;
+                            _controller.toggleCardVisibility();
+                          },
+                          icon: Icon(
+                            Icons.refresh,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                )
+              ],
             ),
             body: Padding(
               padding: AppPaddings.p10,
@@ -64,16 +82,50 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Card No.',
-                          style: TextStyles.kRegularDMSans(
-                            fontSize: FontSizes.k36FontSize,
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'PLEASE ENTER A ',
+                                style: TextStyles.kRegularDMSans(
+                                  fontSize: FontSizes.k16FontSize,
+                                ).copyWith(
+                                  height: 1.25,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'CARD NO.',
+                                style: TextStyles.kBoldDMSans(
+                                  fontSize: FontSizes.k16FontSize,
+                                  color: kColorPrimary,
+                                ).copyWith(
+                                  height: 1.25,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' OR ',
+                                style: TextStyles.kRegularDMSans(
+                                  fontSize: FontSizes.k16FontSize,
+                                ).copyWith(
+                                  height: 1.25,
+                                ),
+                              ),
+                              TextSpan(
+                                text: 'MOBILE NO.',
+                                style: TextStyles.kBoldDMSans(
+                                  fontSize: FontSizes.k16FontSize,
+                                  color: kColorPrimary,
+                                ).copyWith(
+                                  height: 1.25,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         AppSpaces.v20,
                         AppTextFormField(
                           controller: _controller.cardNoController,
-                          hintText: 'Card No.',
+                          hintText: 'Card or Mobile',
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
                             MobileNumberInputFormatter(),
@@ -85,15 +137,18 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                         AppButton(
                           title: 'Continue',
                           onPressed: () async {
-                            if (_controller.cardNoController.text.length < 6) {
-                              showErrorSnackbar(
-                                'Invalid',
-                                'Please enter a card no.',
-                              );
-                            } else {
+                            if (_controller.cardNoController.text.length == 6 ||
+                                _controller.cardNoController.text.length ==
+                                    10) {
                               await _controller.getCardInfo();
                               _controller.toggleCardVisibility();
+
                               FocusManager.instance.primaryFocus?.unfocus();
+                            } else {
+                              showErrorSnackbar(
+                                'Invalid',
+                                'Please enter a valid card no. or a mobile no.',
+                              );
                             }
                           },
                         ),
@@ -124,6 +179,17 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                                       onPressed: () async {
                                         FocusManager.instance.primaryFocus
                                             ?.unfocus();
+
+                                        _controller.selectedProduct.value = '';
+                                        _controller.selectedProductCode.value =
+                                            '';
+                                        _controller.selectedProductShortName
+                                            .value = '';
+                                        _controller.selectedProductRate.value =
+                                            0.0;
+                                        _controller.qtyController.clear();
+                                        _controller.rateController.clear();
+                                        _controller.amountController.clear();
                                         await _controller.getProducts();
                                         _showAddProductDialog();
                                       },
@@ -140,9 +206,39 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                             ),
                           ),
                         ),
-                        AppButton(
-                          title: 'Save',
-                          onPressed: () {},
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Total Amount',
+                                  style: TextStyles.kRegularDMSans(
+                                    fontSize: FontSizes.k16FontSize,
+                                  ),
+                                ),
+                                Text(
+                                  '₹ ${_controller.totalAmount.toString()}',
+                                  style: TextStyles.kBoldDMSans(),
+                                ),
+                              ],
+                            ),
+                            AppButton(
+                              buttonWidth: 0.5.screenWidth,
+                              title: 'Save',
+                              onPressed: () {
+                                if (_controller.addedProducts.isEmpty) {
+                                  showErrorSnackbar(
+                                    'No Products added.',
+                                    'Please add a product to continue',
+                                  );
+                                } else {
+                                  _controller.savePointsEntry();
+                                }
+                              },
+                            ),
+                          ],
                         ),
                         AppSpaces.v20,
                       ],
@@ -196,7 +292,8 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final qty = double.tryParse(value) ?? 0;
-                    final rate = _controller.selectedProductRate.value;
+                    final rate =
+                        double.tryParse(_controller.rateController.text) ?? 0;
                     _controller.amountController.text =
                         (qty * rate).toStringAsFixed(2);
                   },
@@ -206,7 +303,13 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                   controller: _controller.rateController,
                   hintText: 'Rate',
                   keyboardType: TextInputType.number,
-                  onChanged: null,
+                  onChanged: (value) {
+                    final rate = double.tryParse(value) ?? 0;
+                    final qty =
+                        double.tryParse(_controller.qtyController.text) ?? 0;
+                    _controller.amountController.text =
+                        (qty * rate).toStringAsFixed(2);
+                  },
                 ),
                 AppSpaces.v10,
                 AppTextFormField(
@@ -215,7 +318,8 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final amount = double.tryParse(value) ?? 0;
-                    final rate = _controller.selectedProductRate.value;
+                    final rate =
+                        double.tryParse(_controller.rateController.text) ?? 0;
                     if (rate != 0) {
                       _controller.qtyController.text =
                           (amount / rate).toStringAsFixed(2);
@@ -226,21 +330,7 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                 AppButton(
                   title: 'Add',
                   onPressed: () {
-                    _controller.addedProducts.add({
-                      'productName': _controller.selectedProduct.value,
-                      'qty': _controller.qtyController.text,
-                      'rate': _controller.rateController.text,
-                      'amount': _controller.amountController.text,
-                    });
-
-                    _controller.selectedProduct.value = '';
-                    _controller.selectedProductCode.value = '';
-                    _controller.selectedProductShortName.value = '';
-                    _controller.selectedProductRate.value = 0.0;
-                    _controller.qtyController.clear();
-                    _controller.rateController.clear();
-                    _controller.amountController.clear();
-
+                    _controller.addProduct();
                     Get.back();
                   },
                 ),
@@ -268,10 +358,11 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
             ),
           ),
           children: [
-            'Product',
-            'Qty',
-            'Rate',
-            'Amount',
+            'PRODUCT',
+            'QTY',
+            'RATE',
+            'AMOUNT',
+            'ACTION',
           ]
               .map(
                 (text) => _buildTableCell(
@@ -281,42 +372,48 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
               )
               .toList(),
         ),
-        for (var product in _controller.addedProducts)
+        for (var i = 0; i < _controller.addedProducts.length; i++)
           TableRow(
             children: [
-              'productName',
-              'qty',
-              'rate',
-              'amount',
-            ]
-                .map(
-                  (key) => _buildTableCell(product[key]!),
-                )
-                .toList(),
+              _buildTableCell(_controller.addedProducts[i]['PRODUCT_NAME']),
+              _buildTableCell(_controller.addedProducts[i]['QTY'].toString()),
+              _buildTableCell(_controller.addedProducts[i]['RATE'].toString()),
+              _buildTableCell(
+                  _controller.addedProducts[i]['AMOUNT'].toString()),
+              _buildTableCell(
+                InkWell(
+                  child: Icon(
+                    Icons.delete,
+                    color: kColorRed,
+                    size: 20,
+                  ),
+                  onTap: () => _controller.deleteProduct(i),
+                ),
+              ),
+            ],
           ),
       ],
     );
   }
 
-  Widget _buildTableCell(
-    String text, {
-    bool isHeader = false,
-  }) {
+  Widget _buildTableCell(dynamic content, {bool isHeader = false}) {
     return TableCell(
       child: Padding(
         padding: AppPaddings.p6,
-        child: Text(
-          text,
-          style: isHeader
-              ? TextStyles.kMediumDMSans(
-                  color: kColorWhite,
-                  fontSize: FontSizes.k14FontSize,
-                )
-              : TextStyles.kMediumDMSans(
-                  color: kColorTextPrimary,
-                  fontSize: FontSizes.k16FontSize,
-                ),
-        ),
+        child: content is Widget
+            ? content
+            : Text(
+                content.toString(),
+                style: isHeader
+                    ? TextStyles.kMediumDMSans(
+                        color: kColorWhite,
+                        fontSize: FontSizes.k12FontSize,
+                      )
+                    : TextStyles.kMediumDMSans(
+                        color: kColorTextPrimary,
+                        fontSize: FontSizes.k14FontSize,
+                      ),
+              ),
       ),
     );
   }

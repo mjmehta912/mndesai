@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/bill_entry/controllers/bill_entry_controller.dart';
@@ -16,7 +15,6 @@ import 'package:mndesai/utils/screen_utils/app_paddings.dart';
 import 'package:mndesai/utils/screen_utils/app_spacings.dart';
 import 'package:mndesai/widgets/app_appbar.dart';
 import 'package:mndesai/widgets/app_button.dart';
-import 'package:mndesai/widgets/app_date_picker_field.dart';
 import 'package:mndesai/widgets/app_dropdown_search.dart';
 import 'package:mndesai/widgets/app_loading_overlay.dart';
 import 'package:mndesai/widgets/app_text_form_field.dart';
@@ -39,13 +37,15 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
   void initState() {
     super.initState();
 
-    _controller.addedProducts.clear();
     _controller.isCardNoFieldVisible.value = true;
     _controller.isCardSelected.value = false;
+    _controller.addedProducts.clear();
     _controller.cardNoController.clear();
-    _controller.srNoController.clear();
+    _controller.vehicleNos.clear();
     _controller.vehicleNoController.clear();
     _controller.remarkController.clear();
+    _controller.cardInfo.value = null;
+    _controller.customerNameController.text = 'Cash Sales';
   }
 
   @override
@@ -55,14 +55,40 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
         GestureDetector(
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
+            _controller.vehicleNos.clear();
           },
           child: Scaffold(
             backgroundColor: kColorWhite,
             appBar: AppAppbar(
               title: 'Bill Entry',
+              actions: [
+                Obx(
+                  () => _controller.isCardSelected.value &&
+                          !_controller.isCardNoFieldVisible.value
+                      ? IconButton(
+                          onPressed: () {
+                            _controller.cardNoController.clear();
+                            _controller.addedProducts.clear();
+                            _controller.cardInfo.value = null;
+                            _controller.vehicleNoController.clear();
+                            _controller.vehicleNos.clear();
+                            _controller.toggleCardVisibility();
+                          },
+                          icon: Icon(
+                            Icons.refresh,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                )
+              ],
             ),
             body: Padding(
-              padding: AppPaddings.p14,
+              padding: AppPaddings.custom(
+                left: 15,
+                right: 15,
+                top: 5,
+                bottom: 10,
+              ),
               child: Column(
                 children: [
                   Obx(
@@ -73,10 +99,9 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                           onTap: () {
                             _controller.isCardSelected.value = true;
                             _controller.addedProducts.clear();
-                            _controller.srNoController.clear();
-                            _controller.dateController.clear();
                             _controller.customerNameController.clear();
                             _controller.vehicleNoController.clear();
+                            _controller.vehicleNos.clear();
                             _controller.remarkController.clear();
                           },
                           child: SizedBox(
@@ -123,10 +148,6 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
 
                             _controller.customerNameController.text =
                                 'Cash Sales';
-                            _controller.dateController.text =
-                                DateFormat('dd-MM-yyyy').format(
-                              DateTime.now(),
-                            );
                           },
                           child: SizedBox(
                             width: 0.275.screenWidth,
@@ -182,18 +203,58 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           AppSpaces.v60,
-                                          AppSpaces.v40,
-                                          Text(
-                                            'Card No.',
-                                            style: TextStyles.kRegularDMSans(
-                                              fontSize: FontSizes.k36FontSize,
+                                          AppSpaces.v60,
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: 'PLEASE ENTER A ',
+                                                  style:
+                                                      TextStyles.kRegularDMSans(
+                                                    fontSize:
+                                                        FontSizes.k16FontSize,
+                                                  ).copyWith(
+                                                    height: 1.25,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: 'CARD NO.',
+                                                  style: TextStyles.kBoldDMSans(
+                                                    fontSize:
+                                                        FontSizes.k16FontSize,
+                                                    color: kColorPrimary,
+                                                  ).copyWith(
+                                                    height: 1.25,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: ' OR ',
+                                                  style:
+                                                      TextStyles.kRegularDMSans(
+                                                    fontSize:
+                                                        FontSizes.k16FontSize,
+                                                  ).copyWith(
+                                                    height: 1.25,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: 'MOBILE NO.',
+                                                  style: TextStyles.kBoldDMSans(
+                                                    fontSize:
+                                                        FontSizes.k16FontSize,
+                                                    color: kColorPrimary,
+                                                  ).copyWith(
+                                                    height: 1.25,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           AppSpaces.v20,
                                           AppTextFormField(
                                             controller:
                                                 _controller.cardNoController,
-                                            hintText: 'Card No.',
+                                            hintText: 'Card or Mobile',
                                             keyboardType: TextInputType.phone,
                                             inputFormatters: [
                                               MobileNumberInputFormatter(),
@@ -208,19 +269,23 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                             title: 'Continue',
                                             onPressed: () async {
                                               if (_controller.cardNoController
-                                                      .text.length <
-                                                  6) {
-                                                showErrorSnackbar(
-                                                  'Invalid',
-                                                  'Please enter a card no.',
-                                                );
-                                              } else {
+                                                          .text.length ==
+                                                      6 ||
+                                                  _controller.cardNoController
+                                                          .text.length ==
+                                                      10) {
                                                 await _controller.getCardInfo();
                                                 _controller
                                                     .toggleCardVisibility();
+
                                                 FocusManager
                                                     .instance.primaryFocus
                                                     ?.unfocus();
+                                              } else {
+                                                showErrorSnackbar(
+                                                  'Invalid',
+                                                  'Please enter a valid card no. or a mobile no.',
+                                                );
                                               }
                                             },
                                           ),
@@ -228,6 +293,112 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                       )
                                     : Column(
                                         children: [
+                                          AppTextFormField(
+                                            controller:
+                                                _controller.vehicleNoController,
+                                            hintText: 'Vehicle No.',
+                                            enabled: _controller
+                                                .addedProducts.isEmpty,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'[a-zA-Z0-9]'),
+                                              ),
+                                              UpperCaseTextInputFormatter(),
+                                            ],
+                                            onChanged: (value) {
+                                              if (value.isNotEmpty) {
+                                                _controller.getVehicleNos(
+                                                    searchText: value);
+
+                                                print(_controller
+                                                    .vehicleNoController.text);
+                                              } else {
+                                                _controller.vehicleNos.clear();
+                                              }
+                                            },
+                                          ),
+                                          Obx(
+                                            () {
+                                              if (_controller
+                                                  .vehicleNos.isEmpty) {
+                                                return const SizedBox.shrink();
+                                              } else {
+                                                return Column(
+                                                  children: [
+                                                    AppSpaces.v10,
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        color: kColorWhite,
+                                                      ),
+                                                      height: 0.15.screenHeight,
+                                                      child: ListView.builder(
+                                                        shrinkWrap: true,
+                                                        itemCount: _controller
+                                                            .vehicleNos.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          final vehicleNo =
+                                                              _controller
+                                                                      .vehicleNos[
+                                                                  index];
+                                                          return GestureDetector(
+                                                            onTap: () {
+                                                              _controller
+                                                                      .vehicleNoController
+                                                                      .text =
+                                                                  vehicleNo
+                                                                      .vehicleNo;
+                                                              _controller
+                                                                  .vehicleNos
+                                                                  .clear();
+                                                              FocusManager
+                                                                  .instance
+                                                                  .primaryFocus
+                                                                  ?.unfocus();
+
+                                                              print(_controller
+                                                                  .vehicleNoController
+                                                                  .text);
+                                                            },
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: double
+                                                                      .infinity,
+                                                                  child: Text(
+                                                                    vehicleNo
+                                                                        .vehicleNo,
+                                                                    style: TextStyles
+                                                                        .kMediumDMSans(
+                                                                      fontSize:
+                                                                          FontSizes
+                                                                              .k16FontSize,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                if (_controller
+                                                                        .vehicleNos
+                                                                        .length >
+                                                                    1)
+                                                                  Divider(
+                                                                    color:
+                                                                        kColorGrey,
+                                                                  ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }
+                                            },
+                                          ),
+                                          AppSpaces.v10,
                                           BillEntryCard(
                                             controller: _controller,
                                           ),
@@ -242,7 +413,9 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                   height: 25,
                                                   width: 25,
                                                 ),
-                                                buttonWidth: 0.5.screenWidth,
+                                                buttonWidth: 0.4.screenWidth,
+                                                titleSize:
+                                                    FontSizes.k16FontSize,
                                                 title: 'Add Product',
                                                 onPressed: () async {
                                                   FocusManager
@@ -268,7 +441,12 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                     .addedProducts[index];
 
                                                 return _addedProductCard(
-                                                    product);
+                                                  product,
+                                                  () {
+                                                    _controller
+                                                        .deleteProduct(index);
+                                                  },
+                                                );
                                               },
                                             ),
                                           ),
@@ -277,29 +455,6 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                               } else {
                                 return Column(
                                   children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        SizedBox(
-                                          width: 0.45.screenWidth,
-                                          child: AppTextFormField(
-                                            controller:
-                                                _controller.srNoController,
-                                            hintText: 'Sr. No.',
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 0.45.screenWidth,
-                                          child: AppDatePickerTextFormField(
-                                            dateController:
-                                                _controller.dateController,
-                                            hintText: 'Date',
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    AppSpaces.v10,
                                     AppTextFormField(
                                       controller:
                                           _controller.customerNameController,
@@ -310,6 +465,99 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                       controller:
                                           _controller.vehicleNoController,
                                       hintText: 'Vehicle No.',
+                                      enabled:
+                                          _controller.addedProducts.isEmpty,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[a-zA-Z0-9]'),
+                                        ),
+                                        UpperCaseTextInputFormatter(),
+                                      ],
+                                      onChanged: (value) {
+                                        if (value.isNotEmpty) {
+                                          _controller.getVehicleNos(
+                                              searchText: value);
+
+                                          print(_controller
+                                              .vehicleNoController.text);
+                                        } else {
+                                          _controller.vehicleNos.clear();
+                                        }
+                                      },
+                                    ),
+                                    Obx(
+                                      () {
+                                        if (_controller.vehicleNos.isEmpty) {
+                                          return const SizedBox.shrink();
+                                        } else {
+                                          return Column(
+                                            children: [
+                                              AppSpaces.v10,
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: kColorWhite,
+                                                ),
+                                                height: 0.15.screenHeight,
+                                                child: ListView.builder(
+                                                  shrinkWrap: true,
+                                                  itemCount: _controller
+                                                      .vehicleNos.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    final vehicleNo =
+                                                        _controller
+                                                            .vehicleNos[index];
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        _controller
+                                                                .vehicleNoController
+                                                                .text =
+                                                            vehicleNo.vehicleNo;
+                                                        _controller.vehicleNos
+                                                            .clear();
+                                                        FocusManager.instance
+                                                            .primaryFocus
+                                                            ?.unfocus();
+
+                                                        print(_controller
+                                                            .vehicleNoController
+                                                            .text);
+                                                      },
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                double.infinity,
+                                                            child: Text(
+                                                              vehicleNo
+                                                                  .vehicleNo,
+                                                              style: TextStyles
+                                                                  .kMediumDMSans(
+                                                                fontSize: FontSizes
+                                                                    .k16FontSize,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (_controller
+                                                                  .vehicleNos
+                                                                  .length >
+                                                              1)
+                                                            Divider(
+                                                              color: kColorGrey,
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      },
                                     ),
                                     AppSpaces.v10,
                                     AppTextFormField(
@@ -348,7 +596,12 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                           final product =
                                               _controller.addedProducts[index];
 
-                                          return _addedProductCard(product);
+                                          return _addedProductCard(
+                                            product,
+                                            () {
+                                              _controller.deleteProduct(index);
+                                            },
+                                          );
                                         },
                                       ),
                                     ),
@@ -361,10 +614,49 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                       ),
                     ),
                   ),
-                  AppButton(
-                    title: 'Save',
-                    onPressed: () {},
+                  Obx(
+                    () => _controller.isCardSelected.value &&
+                            _controller.isCardNoFieldVisible.value
+                        ? const SizedBox.shrink()
+                        : _controller.addedProducts.isEmpty
+                            ? const SizedBox.shrink()
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'Total Amount',
+                                        style: TextStyles.kRegularDMSans(
+                                          fontSize: FontSizes.k16FontSize,
+                                        ),
+                                      ),
+                                      Text(
+                                        '₹ ${_controller.totalAmount.toString()}',
+                                        style: TextStyles.kBoldDMSans(),
+                                      ),
+                                    ],
+                                  ),
+                                  AppButton(
+                                    buttonWidth: 0.5.screenWidth,
+                                    title: 'Save',
+                                    onPressed: () {
+                                      if (_controller.addedProducts.isEmpty) {
+                                        showErrorSnackbar(
+                                          'No Products added.',
+                                          'Please add a product to continue',
+                                        );
+                                      } else {
+                                        _controller.saveBillEntry();
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                   ),
+                  AppSpaces.v20,
                 ],
               ),
             ),
@@ -379,7 +671,10 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
     );
   }
 
-  Card _addedProductCard(Map<String, dynamic> product) {
+  Card _addedProductCard(
+    Map<String, dynamic> product,
+    VoidCallback onTap,
+  ) {
     return Card(
       color: kColorWhite,
       shape: RoundedRectangleBorder(
@@ -394,25 +689,36 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(
+              width: 0.5.screenWidth,
+              child: Text(
+                product['PRODUCT_NAME'],
+                style: TextStyles.kMediumDMSans(
+                  color: kColorTextPrimary,
+                  fontSize: FontSizes.k18FontSize,
+                ),
+              ),
+            ),
             Text(
-              product['productName'],
+              product['QTY'].toString(),
               style: TextStyles.kMediumDMSans(
                 color: kColorTextPrimary,
                 fontSize: FontSizes.k18FontSize,
               ),
             ),
             Text(
-              product['qty'],
+              product['AMOUNT'].toString(),
               style: TextStyles.kMediumDMSans(
                 color: kColorTextPrimary,
                 fontSize: FontSizes.k18FontSize,
               ),
             ),
-            Text(
-              product['amount'],
-              style: TextStyles.kMediumDMSans(
-                color: kColorTextPrimary,
-                fontSize: FontSizes.k18FontSize,
+            InkWell(
+              onTap: onTap,
+              child: Icon(
+                Icons.delete,
+                color: kColorRed,
+                size: 20,
               ),
             )
           ],
@@ -455,7 +761,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final qty = double.tryParse(value) ?? 0;
-                    final rate = _controller.selectedProductRate.value;
+                    final rate =
+                        double.tryParse(_controller.rateController.text) ?? 0;
                     _controller.amountController.text =
                         (qty * rate).toStringAsFixed(2);
                   },
@@ -465,7 +772,13 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                   controller: _controller.rateController,
                   hintText: 'Rate',
                   keyboardType: TextInputType.number,
-                  onChanged: null,
+                  onChanged: (value) {
+                    final rate = double.tryParse(value) ?? 0;
+                    final qty =
+                        double.tryParse(_controller.qtyController.text) ?? 0;
+                    _controller.amountController.text =
+                        (qty * rate).toStringAsFixed(2);
+                  },
                 ),
                 AppSpaces.v10,
                 AppTextFormField(
@@ -474,7 +787,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final amount = double.tryParse(value) ?? 0;
-                    final rate = _controller.selectedProductRate.value;
+                    final rate =
+                        double.tryParse(_controller.rateController.text) ?? 0;
                     if (rate != 0) {
                       _controller.qtyController.text =
                           (amount / rate).toStringAsFixed(2);
@@ -485,21 +799,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                 AppButton(
                   title: 'Add',
                   onPressed: () {
-                    _controller.addedProducts.add({
-                      'productName': _controller.selectedProduct.value,
-                      'qty': _controller.qtyController.text,
-                      'rate': _controller.rateController.text,
-                      'amount': _controller.amountController.text,
-                    });
-
-                    _controller.selectedProduct.value = '';
-                    _controller.selectedProductCode.value = '';
-                    _controller.selectedProductShortName.value = '';
-                    _controller.selectedProductRate.value = 0.0;
-                    _controller.qtyController.clear();
-                    _controller.rateController.clear();
-                    _controller.amountController.clear();
-
+                    _controller.addProduct();
                     Get.back();
                   },
                 ),

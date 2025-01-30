@@ -99,6 +99,9 @@ class _VirtualCardGenerationScreenState
                             AppTextFormField(
                               controller: _controller.nameController,
                               hintText: 'Name',
+                              inputFormatters: [
+                                TitleCaseTextInputFormatter(),
+                              ],
                             ),
                             AppSpaces.v10,
                             AppDatePickerTextFormField(
