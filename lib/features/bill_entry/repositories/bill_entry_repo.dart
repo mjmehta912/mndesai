@@ -5,14 +5,20 @@ import 'package:mndesai/services/api_service.dart';
 import 'package:mndesai/utils/helpers/secure_storage_helper.dart';
 
 class BillEntryRepo {
-  static Future<List<ProductDm>> getProducts() async {
+  static Future<List<ProductDm>> getProducts({
+    required String pCode,
+  }) async {
     String? token = await SecureStorageHelper.read(
       'token',
     );
 
     try {
+      print(pCode);
       final response = await ApiService.getRequest(
         endpoint: '/MobileEntry/item',
+        queryParams: {
+          'PCODE': pCode,
+        },
         token: token,
       );
       if (response == null) {

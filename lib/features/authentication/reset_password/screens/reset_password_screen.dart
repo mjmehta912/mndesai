@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
-import 'package:mndesai/features/authentication/login/screens/login_screen.dart';
 import 'package:mndesai/features/authentication/reset_password/controllers/reset_password_controller.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
@@ -112,8 +111,8 @@ class ResetPasswordScreen extends StatelessWidget {
                           FocusManager.instance.primaryFocus?.unfocus();
                           if (_controller.resetPasswordFormKey.currentState!
                               .validate()) {
-                            Get.offAll(
-                              () => LoginScreen(),
+                            _controller.resetPassword(
+                              mobileNumber: mobileNumber,
                             );
                           }
                         },

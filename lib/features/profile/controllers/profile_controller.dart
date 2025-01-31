@@ -7,6 +7,7 @@ class ProfileController extends GetxController {
   var isLoading = false.obs;
 
   var fullName = ''.obs;
+  var mobileNumber = ''.obs;
   var userId = ''.obs;
   var userType = ''.obs;
 
@@ -19,7 +20,8 @@ class ProfileController extends GetxController {
   Future<void> loadUserInfo() async {
     try {
       fullName.value = await SecureStorageHelper.read('fullName') ?? 'Unknown';
-
+      mobileNumber.value =
+          await SecureStorageHelper.read('mobileNo') ?? 'Unknown';
       userType.value = await SecureStorageHelper.read('userType') ?? 'guest';
       userId.value = await SecureStorageHelper.read('userId') ?? '';
     } catch (e) {

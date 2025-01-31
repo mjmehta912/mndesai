@@ -24,7 +24,7 @@ class AppLoadingOverlay extends StatelessWidget {
         ),
         Center(
           child: CircularProgressIndicator(
-            color: kColorTextPrimary,
+            color: kColorWhite,
           ),
         ),
       ],

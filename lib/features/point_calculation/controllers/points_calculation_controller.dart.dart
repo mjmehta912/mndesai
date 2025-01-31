@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mndesai/constants/color_constants.dart';
+import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
 import 'package:mndesai/features/point_calculation/repositories/points_calculation_repo.dart';
+import 'package:mndesai/styles/font_sizes.dart';
+import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
+import 'package:mndesai/utils/screen_utils/app_paddings.dart';
+import 'package:mndesai/utils/screen_utils/app_spacings.dart';
+import 'package:mndesai/widgets/app_button.dart';
 
 class PointsCalculationController extends GetxController {
   var isLoading = false.obs;
 
   final Rx<CardInfoDm?> cardInfo = Rx<CardInfoDm?>(null);
+  var productsFormKey = GlobalKey<FormState>();
 
   var isCardNoFieldVisible = true.obs;
   void toggleCardVisibility() {
@@ -22,6 +30,10 @@ class PointsCalculationController extends GetxController {
   var selectedProductCode = ''.obs;
   var selectedProductShortName = ''.obs;
   var selectedProductRate = 0.0.obs;
+  var selectedProductSpecialRate = 0.0.obs;
+  var selectedProductDateWise = false.obs;
+  var selectedProductMinimumLimit = 0.0.obs;
+  var selectedProductMaximumLimit = 0.0.obs;
   var qtyController = TextEditingController();
   var rateController = TextEditingController();
   var amountController = TextEditingController();
@@ -47,8 +59,11 @@ class PointsCalculationController extends GetxController {
 
     selectedProduct.value = '';
     selectedProductCode.value = '';
-    selectedProductShortName.value = '';
     selectedProductRate.value = 0.0;
+    selectedProductSpecialRate.value = 0.0;
+    selectedProductDateWise.value = false;
+    selectedProductMinimumLimit.value = 0.0;
+    selectedProductMaximumLimit.value = 0.0;
     qtyController.clear();
     rateController.clear();
     amountController.clear();
@@ -84,7 +99,9 @@ class PointsCalculationController extends GetxController {
     try {
       isLoading.value = true;
 
-      final fetchedProducts = await PointsCalculationRepo.getProducts();
+      final fetchedProducts = await PointsCalculationRepo.getProducts(
+        pCode: cardInfo.value != null ? cardInfo.value!.pCode : '',
+      );
 
       products.assignAll(fetchedProducts);
       productNames.assignAll(
@@ -111,15 +128,27 @@ class PointsCalculationController extends GetxController {
 
     selectedProductCode.value = productObj.iCode;
     selectedProductShortName.value = productObj.shortName;
-    if (productObj.rate != null) {
+    selectedProductMinimumLimit.value = productObj.minLimit;
+    selectedProductMaximumLimit.value = productObj.maxLimit;
+    if (productObj.dateWise == true && productObj.rate != null) {
       qtyController.clear();
       amountController.clear();
       selectedProductRate.value = productObj.rate!;
+      rateController.text = selectedProductRate.value.toString();
+    } else if (productObj.dateWise == true && productObj.rate == null) {
+      qtyController.clear();
+      amountController.clear();
+      selectedProductSpecialRate.value = productObj.salesRate;
+      rateController.text = selectedProductSpecialRate.value.toString();
+    } else if (productObj.dateWise == false) {
+      qtyController.clear();
+      amountController.clear();
+      selectedProductSpecialRate.value = productObj.salesRate;
+      rateController.text = selectedProductSpecialRate.value.toString();
     } else {
       selectedProductRate.value = 0.0;
+      rateController.text = selectedProductRate.value.toString();
     }
-
-    rateController.text = selectedProductRate.value.toString();
   }
 
   Future<void> savePointsEntry() async {
@@ -149,9 +178,136 @@ class PointsCalculationController extends GetxController {
 
       if (response != null && response.containsKey('message')) {
         String message = response['message'];
-        showSuccessDialog(
-          Get.context!,
-          message,
+        double totalPoints = response['TotalPoints'];
+        double prevPoints = response['PrevPoints'];
+        double currentPoints = totalPoints - prevPoints;
+        String cardNo = response['CardNo'];
+        String mobileNo = response['MobileNo'];
+        showDialog(
+          context: Get.context!,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return Dialog(
+              backgroundColor: kColorWhite,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Container(
+                padding: AppPaddings.p10,
+                constraints: const BoxConstraints(
+                  maxWidth: 300,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      kSuccessLottieGif,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                    Text(
+                      message,
+                      style: TextStyles.kBoldDMSans(
+                        color: Colors.green,
+                      ).copyWith(
+                        height: 1.25,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    AppSpaces.v10,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Card No. : ',
+                          style: TextStyles.kRegularDMSans(
+                            color: kColorTextPrimary,
+                            fontSize: FontSizes.k16FontSize,
+                          ).copyWith(
+                            height: 1.25,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          cardNo,
+                          style: TextStyles.kBoldDMSans(
+                            color: kColorTextPrimary,
+                            fontSize: FontSizes.k16FontSize,
+                          ).copyWith(
+                            height: 1.25,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Mobile No. : ',
+                          style: TextStyles.kRegularDMSans(
+                            color: kColorTextPrimary,
+                            fontSize: FontSizes.k16FontSize,
+                          ).copyWith(
+                            height: 1.25,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          mobileNo,
+                          style: TextStyles.kBoldDMSans(
+                            color: kColorTextPrimary,
+                            fontSize: FontSizes.k16FontSize,
+                          ).copyWith(
+                            height: 1.25,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    AppSpaces.v6,
+                    Text(
+                      'Previous Points : $prevPoints',
+                      style: TextStyles.kMediumDMSans(
+                        color: kColorTextPrimary,
+                        fontSize: FontSizes.k16FontSize,
+                      ).copyWith(
+                        height: 1.25,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    AppSpaces.v4,
+                    Text(
+                      'Current Points : $currentPoints',
+                      style: TextStyles.kBoldDMSans(
+                        color: kColorPrimary,
+                        fontSize: FontSizes.k18FontSize,
+                      ).copyWith(
+                        height: 1.25,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      'Total Points : $totalPoints',
+                      style: TextStyles.kBoldDMSans(
+                        color: kColorTextPrimary,
+                      ).copyWith(
+                        height: 1.25,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    AppSpaces.v10,
+                    AppButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      title: 'OK',
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
 
         cardNoController.clear();

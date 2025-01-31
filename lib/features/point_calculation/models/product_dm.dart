@@ -5,6 +5,8 @@ class ProductDm {
   final double salesRate;
   final bool dateWise;
   final double? rate;
+  final double minLimit;
+  final double maxLimit;
 
   ProductDm({
     required this.iCode,
@@ -13,6 +15,8 @@ class ProductDm {
     required this.salesRate,
     required this.dateWise,
     this.rate,
+    required this.minLimit,
+    required this.maxLimit,
   });
 
   factory ProductDm.fromJson(Map<String, dynamic> json) {
@@ -25,6 +29,8 @@ class ProductDm {
           : json['SalesRate'] as double,
       dateWise: json['DATEWISE'],
       rate: json['Rate'] != null ? json['Rate'] as double : 0.0,
+      minLimit: json['MinLimit'] as double,
+      maxLimit: json['MaxLimit'] as double,
     );
   }
 }

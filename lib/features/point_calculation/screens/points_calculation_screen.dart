@@ -195,6 +195,14 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                                             .value = '';
                                         _controller.selectedProductRate.value =
                                             0.0;
+                                        _controller.selectedProductSpecialRate
+                                            .value = 0.0;
+                                        _controller.selectedProductDateWise
+                                            .value = false;
+                                        _controller.selectedProductMinimumLimit
+                                            .value = 0.0;
+                                        _controller.selectedProductMaximumLimit
+                                            .value = 0.0;
                                         _controller.qtyController.clear();
                                         _controller.rateController.clear();
                                         _controller.amountController.clear();
@@ -214,39 +222,45 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Total Amount',
-                                  style: TextStyles.kRegularDMSans(
-                                    fontSize: FontSizes.k16FontSize,
-                                  ),
+                        Obx(
+                          () => _controller.addedProducts.isEmpty
+                              ? const SizedBox.shrink()
+                              : Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Total Amount',
+                                          style: TextStyles.kRegularDMSans(
+                                            fontSize: FontSizes.k16FontSize,
+                                          ),
+                                        ),
+                                        Text(
+                                          '₹ ${_controller.totalAmount.toString()}',
+                                          style: TextStyles.kBoldDMSans(),
+                                        ),
+                                      ],
+                                    ),
+                                    AppButton(
+                                      buttonWidth: 0.5.screenWidth,
+                                      title: 'Save',
+                                      onPressed: () {
+                                        if (_controller.addedProducts.isEmpty) {
+                                          showErrorSnackbar(
+                                            'No Products added.',
+                                            'Please add a product to continue',
+                                          );
+                                        } else {
+                                          _controller.savePointsEntry();
+                                        }
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  '₹ ${_controller.totalAmount.toString()}',
-                                  style: TextStyles.kBoldDMSans(),
-                                ),
-                              ],
-                            ),
-                            AppButton(
-                              buttonWidth: 0.5.screenWidth,
-                              title: 'Save',
-                              onPressed: () {
-                                if (_controller.addedProducts.isEmpty) {
-                                  showErrorSnackbar(
-                                    'No Products added.',
-                                    'Please add a product to continue',
-                                  );
-                                } else {
-                                  _controller.savePointsEntry();
-                                }
-                              },
-                            ),
-                          ],
                         ),
                         AppSpaces.v20,
                       ],
@@ -280,69 +294,140 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
               horizontal: 15.appWidth,
               vertical: 15.appHeight,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Obx(
-                  () => AppDropdown(
-                    items: _controller.productNames,
-                    hintText: 'Product',
-                    onChanged: (value) => _controller.onProductSelected(value!),
-                    selectedItem: _controller.selectedProduct.value.isNotEmpty
-                        ? _controller.selectedProduct.value
-                        : null,
+            child: Form(
+              key: _controller.productsFormKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(
+                    () => AppDropdown(
+                      items: _controller.productNames,
+                      hintText: 'Product',
+                      onChanged: (value) =>
+                          _controller.onProductSelected(value!),
+                      selectedItem: _controller.selectedProduct.value.isNotEmpty
+                          ? _controller.selectedProduct.value
+                          : null,
+                      validatorText: 'Please select a product.',
+                    ),
                   ),
-                ),
-                AppSpaces.v10,
-                AppTextFormField(
-                  controller: _controller.qtyController,
-                  hintText: 'Qty',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final qty = double.tryParse(value) ?? 0;
-                    final rate =
-                        double.tryParse(_controller.rateController.text) ?? 0;
-                    _controller.amountController.text =
-                        (qty * rate).toStringAsFixed(2);
-                  },
-                ),
-                AppSpaces.v10,
-                AppTextFormField(
-                  controller: _controller.rateController,
-                  hintText: 'Rate',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final rate = double.tryParse(value) ?? 0;
-                    final qty =
-                        double.tryParse(_controller.qtyController.text) ?? 0;
-                    _controller.amountController.text =
-                        (qty * rate).toStringAsFixed(2);
-                  },
-                ),
-                AppSpaces.v10,
-                AppTextFormField(
-                  controller: _controller.amountController,
-                  hintText: 'Amount',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    final amount = double.tryParse(value) ?? 0;
-                    final rate =
-                        double.tryParse(_controller.rateController.text) ?? 0;
-                    if (rate != 0) {
-                      _controller.qtyController.text =
-                          (amount / rate).toStringAsFixed(2);
-                    }
-                  },
-                ),
-                AppSpaces.v20,
-                AppButton(
-                  title: 'Add',
-                  onPressed: () {
-                    _controller.addProduct();
-                    Get.back();
-                  },
-                ),
-              ],
+                  AppSpaces.v10,
+                  AppTextFormField(
+                    controller: _controller.qtyController,
+                    hintText: 'Qty',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a qty.';
+                      }
+
+                      if (double.parse(value) <= 0) {
+                        return 'Qty must be greater than 0';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      final qty = double.tryParse(value) ?? 0;
+                      final rate =
+                          double.tryParse(_controller.rateController.text) ?? 0;
+                      _controller.amountController.text =
+                          (qty * rate).toStringAsFixed(2);
+                    },
+                  ),
+                  AppSpaces.v10,
+                  AppTextFormField(
+                    controller: _controller.rateController,
+                    hintText: 'Rate',
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      final rate = double.tryParse(value) ?? 0;
+                      final qty =
+                          double.tryParse(_controller.qtyController.text) ?? 0;
+                      _controller.amountController.text =
+                          (qty * rate).toStringAsFixed(2);
+                    },
+                  ),
+                  AppSpaces.v10,
+                  AppTextFormField(
+                    controller: _controller.amountController,
+                    hintText: 'Amount',
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an amount.';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      final amount = double.tryParse(value) ?? 0;
+                      final rate =
+                          double.tryParse(_controller.rateController.text) ?? 0;
+                      if (rate != 0) {
+                        _controller.qtyController.text =
+                            (amount / rate).toStringAsFixed(2);
+                      }
+                    },
+                  ),
+                  AppSpaces.v20,
+                  AppButton(
+                    title: 'Add',
+                    onPressed: () {
+                      if (_controller.productsFormKey.currentState!
+                          .validate()) {
+                        if (_controller.selectedProductMaximumLimit > 0 &&
+                            double.parse(_controller.amountController.text) >
+                                _controller.selectedProductMaximumLimit.value) {
+                          Get.dialog(
+                            AlertDialog(
+                              title: Text(
+                                'Alert',
+                                style: TextStyles.kSemiBoldDMSans(
+                                  color: kColorPrimary,
+                                ),
+                              ),
+                              content: Text(
+                                'Entered amount ${double.parse(_controller.amountController.text)} exceeds the limit ${_controller.selectedProductMaximumLimit.value}. Do you want to continue?',
+                                style: TextStyles.kMediumDMSans(
+                                  fontSize: FontSizes.k16FontSize,
+                                ),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text(
+                                    'No',
+                                    style: TextStyles.kSemiBoldDMSans(
+                                      color: kColorPrimary,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text(
+                                    'Yes',
+                                    style: TextStyles.kSemiBoldDMSans(
+                                      color: kColorPrimary,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Get.back();
+                                    Get.back();
+                                    _controller.addProduct();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          _controller.addProduct();
+                          Get.back();
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );

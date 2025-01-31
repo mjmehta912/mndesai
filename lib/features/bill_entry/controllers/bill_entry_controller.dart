@@ -9,6 +9,7 @@ import 'package:mndesai/utils/dialogs/app_dialogs.dart';
 class BillEntryController extends GetxController {
   var isLoading = false.obs;
   final billEntryFormKey = GlobalKey<FormState>();
+  final productsFormKey = GlobalKey<FormState>();
 
   var products = <ProductDm>[].obs;
   var productNames = <String>[].obs;
@@ -22,6 +23,10 @@ class BillEntryController extends GetxController {
   var selectedProductCode = ''.obs;
   var selectedProductShortName = ''.obs;
   var selectedProductRate = 0.0.obs;
+  var selectedProductSpecialRate = 0.0.obs;
+  var selectedProductDateWise = false.obs;
+  var selectedProductMinimumLimit = 0.0.obs;
+  var selectedProductMaximumLimit = 0.0.obs;
   var qtyController = TextEditingController();
   var rateController = TextEditingController();
   var amountController = TextEditingController();
@@ -58,6 +63,10 @@ class BillEntryController extends GetxController {
     selectedProductCode.value = '';
     selectedProductShortName.value = '';
     selectedProductRate.value = 0.0;
+    selectedProductSpecialRate.value = 0.0;
+    selectedProductDateWise.value = false;
+    selectedProductMinimumLimit.value = 0.0;
+    selectedProductMaximumLimit.value = 0.0;
     qtyController.clear();
     rateController.clear();
     amountController.clear();
@@ -75,7 +84,13 @@ class BillEntryController extends GetxController {
     try {
       isLoading.value = true;
 
-      final fetchedProducts = await BillEntryRepo.getProducts();
+      final fetchedProducts = await BillEntryRepo.getProducts(
+        pCode: isCardSelected.value
+            ? cardInfo.value != null
+                ? cardInfo.value!.pCode
+                : ''
+            : '00000001',
+      );
 
       products.assignAll(fetchedProducts);
       productNames.assignAll(
@@ -102,15 +117,27 @@ class BillEntryController extends GetxController {
 
     selectedProductCode.value = productObj.iCode;
     selectedProductShortName.value = productObj.shortName;
-    if (productObj.rate != null) {
-      selectedProductRate.value = productObj.rate!;
+    selectedProductMinimumLimit.value = productObj.minLimit;
+    selectedProductMaximumLimit.value = productObj.maxLimit;
+    if (productObj.dateWise == true && productObj.rate != null) {
       qtyController.clear();
       amountController.clear();
+      selectedProductRate.value = productObj.rate!;
+      rateController.text = selectedProductRate.value.toString();
+    } else if (productObj.dateWise == true && productObj.rate == null) {
+      qtyController.clear();
+      amountController.clear();
+      selectedProductSpecialRate.value = productObj.salesRate;
+      rateController.text = selectedProductSpecialRate.value.toString();
+    } else if (productObj.dateWise == false) {
+      qtyController.clear();
+      amountController.clear();
+      selectedProductSpecialRate.value = productObj.salesRate;
+      rateController.text = selectedProductSpecialRate.value.toString();
     } else {
       selectedProductRate.value = 0.0;
+      rateController.text = selectedProductRate.value.toString();
     }
-
-    rateController.text = selectedProductRate.value.toString();
   }
 
   Future<void> getCardInfo() async {

@@ -50,6 +50,55 @@ void showErrorSnackbar(
       child: Text(
         'OK',
         style: TextStyles.kMediumDMSans(
+          color: kColorTextPrimary,
+          fontSize: FontSizes.k24FontSize,
+        ),
+      ),
+    ),
+  );
+}
+
+void showAlertSnackbar(
+  String title,
+  String message,
+) {
+  Get.snackbar(
+    '',
+    '',
+    snackPosition: SnackPosition.BOTTOM,
+    backgroundColor: Colors.yellow,
+    duration: const Duration(
+      seconds: 5,
+    ),
+    margin: AppPaddings.p10,
+    borderRadius: 15,
+    isDismissible: true,
+    forwardAnimationCurve: Curves.easeOutBack,
+    reverseAnimationCurve: Curves.easeInBack,
+    animationDuration: const Duration(
+      milliseconds: 750,
+    ),
+    titleText: Text(
+      title,
+      style: TextStyles.kMediumDMSans(
+        color: kColorTextPrimary,
+        fontSize: FontSizes.k20FontSize,
+      ),
+    ),
+    messageText: Text(
+      message,
+      style: TextStyles.kRegularDMSans(
+        fontSize: FontSizes.k16FontSize,
+        color: kColorTextPrimary,
+      ),
+    ),
+    mainButton: TextButton(
+      onPressed: () {
+        Get.back();
+      },
+      child: Text(
+        'OK',
+        style: TextStyles.kMediumDMSans(
           color: kColorWhite,
           fontSize: FontSizes.k24FontSize,
         ),

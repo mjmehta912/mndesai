@@ -65,7 +65,10 @@ class LoginController extends GetxController {
         'fullName',
         response['fullName'],
       );
-
+      await SecureStorageHelper.write(
+        'mobileNo',
+        response['mobileNo'],
+      );
       await SecureStorageHelper.write(
         'userType',
         response['userType'].toString(),

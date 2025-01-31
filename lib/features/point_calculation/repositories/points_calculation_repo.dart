@@ -26,7 +26,9 @@ class PointsCalculationRepo {
     }
   }
 
-  static Future<List<ProductDm>> getProducts() async {
+  static Future<List<ProductDm>> getProducts({
+    required String pCode,
+  }) async {
     String? token = await SecureStorageHelper.read(
       'token',
     );
@@ -34,6 +36,9 @@ class PointsCalculationRepo {
     try {
       final response = await ApiService.getRequest(
         endpoint: '/MobileEntry/item',
+        queryParams: {
+          'PCODE': pCode,
+        },
         token: token,
       );
       if (response == null) {
