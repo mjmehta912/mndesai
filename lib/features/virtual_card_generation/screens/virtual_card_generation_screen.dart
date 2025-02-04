@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/features/virtual_card_generation/controllers/virtual_card_generation_controller.dart';
+import 'package:mndesai/features/virtual_card_generation/screens/ref_card_help_screen.dart';
 import 'package:mndesai/utils/formatters/text_input_formatters.dart';
 import 'package:mndesai/utils/screen_utils/app_paddings.dart';
 import 'package:mndesai/utils/screen_utils/app_spacings.dart';
 import 'package:mndesai/widgets/app_appbar.dart';
 import 'package:mndesai/widgets/app_button.dart';
 import 'package:mndesai/widgets/app_date_picker_field.dart';
+import 'package:mndesai/widgets/app_dropdown_search.dart';
 import 'package:mndesai/widgets/app_loading_overlay.dart';
 import 'package:mndesai/widgets/app_text_form_field.dart';
 
@@ -36,6 +38,10 @@ class _VirtualCardGenerationScreenState
     _controller.mobileNoController.clear();
     _controller.nameController.clear();
     _controller.refCardNoController.clear();
+    _controller.selectedSalesman.value = '';
+    _controller.selectedSalesmanCode.value = '';
+    _controller.salesmen.clear();
+    _controller.salesmanNames.clear();
 
     _controller.birthDateController.text = DateFormat('dd-MM-yyyy').format(
       DateTime.now(),
@@ -53,6 +59,8 @@ class _VirtualCardGenerationScreenState
       _controller.availableCardNoController.text =
           _controller.cardData.value!.cardNo.toString();
     }
+
+    await _controller.getSalesMen();
   }
 
   @override
@@ -78,6 +86,7 @@ class _VirtualCardGenerationScreenState
                         key: _controller.virtualCardFenerationFormKey,
                         child: Column(
                           children: [
+                            AppSpaces.v10,
                             AppTextFormField(
                               controller: _controller.mobileNoController,
                               hintText: 'Mobile No.',
@@ -97,7 +106,7 @@ class _VirtualCardGenerationScreenState
                                 LengthLimitingTextInputFormatter(10),
                               ],
                             ),
-                            AppSpaces.v10,
+                            AppSpaces.v14,
                             AppTextFormField(
                               controller: _controller.nameController,
                               hintText: 'Name',
@@ -105,12 +114,26 @@ class _VirtualCardGenerationScreenState
                                 TitleCaseTextInputFormatter(),
                               ],
                             ),
-                            AppSpaces.v10,
+                            AppSpaces.v14,
                             AppDatePickerTextFormField(
                               dateController: _controller.birthDateController,
                               hintText: 'Birth Date',
                             ),
-                            AppSpaces.v10,
+                            AppSpaces.v14,
+                            Obx(
+                              () => AppDropdown(
+                                items: _controller.salesmanNames,
+                                hintText: 'Salesman',
+                                onChanged: (value) {
+                                  _controller.onSalesmanSelected(value!);
+                                },
+                                selectedItem: _controller
+                                        .selectedSalesman.value.isNotEmpty
+                                    ? _controller.selectedSalesman.value
+                                    : null,
+                              ),
+                            ),
+                            AppSpaces.v14,
                             AppTextFormField(
                               controller: _controller.availableCardNoController,
                               hintText: 'Available Card No.',
@@ -122,10 +145,21 @@ class _VirtualCardGenerationScreenState
                               },
                               enabled: false,
                             ),
-                            AppSpaces.v10,
+                            AppSpaces.v14,
                             AppTextFormField(
                               controller: _controller.refCardNoController,
                               hintText: 'Ref. Card No.',
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  Get.to(
+                                    () => RefCardHelpScreen(),
+                                  );
+                                },
+                                icon: Icon(
+                                  Icons.question_mark_outlined,
+                                  color: kColorTextPrimary,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -140,12 +174,16 @@ class _VirtualCardGenerationScreenState
                         await _controller.generateVirtualCard();
 
                         _controller.mobileNoController.clear();
-                        _controller.nameController.clear();
+                        _controller.nameController.text = 'Alloted';
                         _controller.refCardNoController.clear();
+                        _controller.selectedSalesman.value = '';
+                        _controller.selectedSalesmanCode.value = '';
                         _controller.birthDateController.text =
                             DateFormat('dd-MM-yyyy').format(
                           DateTime.now(),
                         );
+
+                        FocusManager.instance.primaryFocus?.unfocus();
 
                         await _controller.getCardNo();
                         if (_controller.cardData.value != null) {

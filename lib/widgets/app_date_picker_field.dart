@@ -40,7 +40,7 @@ class _AppDatePickerTextFormFieldState
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: currentDate,
-      firstDate: DateTime(2000),
+      firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -118,6 +118,16 @@ class _AppDatePickerTextFormFieldState
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyles.kRegularDMSans(
+          fontSize: FontSizes.k16FontSize,
+          color: kColorGrey,
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelStyle: TextStyles.kRegularDMSans(
+          fontSize: FontSizes.k18FontSize,
+          color: kColorPrimary,
+        ),
+        labelText: widget.hintText,
+        labelStyle: TextStyles.kRegularDMSans(
           fontSize: FontSizes.k16FontSize,
           color: kColorGrey,
         ),

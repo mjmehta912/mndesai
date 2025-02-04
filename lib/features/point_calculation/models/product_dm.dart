@@ -5,6 +5,7 @@ class ProductDm {
   final double salesRate;
   final bool dateWise;
   final double? rate;
+  final double? pointRate;
   final double minLimit;
   final double maxLimit;
 
@@ -15,6 +16,7 @@ class ProductDm {
     required this.salesRate,
     required this.dateWise,
     this.rate,
+    this.pointRate,
     required this.minLimit,
     required this.maxLimit,
   });
@@ -29,6 +31,11 @@ class ProductDm {
           : json['SalesRate'] as double,
       dateWise: json['DATEWISE'],
       rate: json['Rate'] != null ? json['Rate'] as double : 0.0,
+      pointRate: json['PointRate'] != null
+          ? (json['PointRate'] is int)
+              ? (json['PointRate'] as int).toDouble()
+              : json['PointRate'] as double
+          : 0.0,
       minLimit: json['MinLimit'] as double,
       maxLimit: json['MaxLimit'] as double,
     );

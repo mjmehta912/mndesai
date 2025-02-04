@@ -40,6 +40,10 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
     _controller.cardNoController.clear();
     _controller.addedProducts.clear();
     _controller.cardInfo.value = null;
+    _controller.selectedSalesman.value = '';
+    _controller.selectedSalesmanCode.value = '';
+    _controller.salesmen.clear();
+    _controller.salesmanNames.clear();
     _controller.isCardNoFieldVisible.value = true;
   }
 
@@ -63,6 +67,10 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                             _controller.cardNoController.clear();
                             _controller.addedProducts.clear();
                             _controller.cardInfo.value = null;
+                            _controller.selectedSalesman.value = '';
+                            _controller.selectedSalesmanCode.value = '';
+                            _controller.salesmen.clear();
+                            _controller.salesmanNames.clear();
                             _controller.toggleCardVisibility();
                           },
                           icon: Icon(
@@ -145,6 +153,7 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
 
                               if (_controller.cardInfo.value != null) {
                                 _controller.toggleCardVisibility();
+                                await _controller.getSalesMen();
                               } else {
                                 _controller.cardNoController.clear();
                                 showErrorSnackbar(
@@ -173,6 +182,20 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                                   controller: _controller,
                                 ),
                                 AppSpaces.v10,
+                                Obx(
+                                  () => AppDropdown(
+                                    items: _controller.salesmanNames,
+                                    hintText: 'Salesman',
+                                    onChanged: (value) {
+                                      _controller.onSalesmanSelected(value!);
+                                    },
+                                    selectedItem: _controller
+                                            .selectedSalesman.value.isNotEmpty
+                                        ? _controller.selectedSalesman.value
+                                        : null,
+                                  ),
+                                ),
+                                AppSpaces.v10,
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -196,6 +219,8 @@ class _PointsCalculationScreenState extends State<PointsCalculationScreen> {
                                         _controller.selectedProductRate.value =
                                             0.0;
                                         _controller.selectedProductSpecialRate
+                                            .value = 0.0;
+                                        _controller.selectedProductPointRate
                                             .value = 0.0;
                                         _controller.selectedProductDateWise
                                             .value = false;

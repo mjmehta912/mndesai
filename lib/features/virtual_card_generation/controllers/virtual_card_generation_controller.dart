@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mndesai/features/virtual_card_generation/models/card_no_dm.dart';
+import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
 import 'package:mndesai/features/virtual_card_generation/repositories/virtual_card_generation_repo.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
 
@@ -17,6 +18,10 @@ class VirtualCardGenerationController extends GetxController {
   var availableCardNoController = TextEditingController();
   var cardIssueDateController = TextEditingController();
   var refCardNoController = TextEditingController();
+  var salesmen = <SalesmanDm>[].obs;
+  var salesmanNames = <String>[].obs;
+  var selectedSalesman = ''.obs;
+  var selectedSalesmanCode = ''.obs;
 
   Future<void> getCardNo() async {
     isLoading.value = false;
@@ -74,5 +79,36 @@ class VirtualCardGenerationController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> getSalesMen() async {
+    isLoading.value = false;
+    try {
+      final fetchedSalesmen = await VirtualCardGenerationRepo.getSalesmen();
+
+      salesmen.assignAll(fetchedSalesmen);
+      salesmanNames.assignAll(
+        fetchedSalesmen.map(
+          (se) => se.seName,
+        ),
+      );
+    } catch (e) {
+      showErrorSnackbar(
+        'Error',
+        e.toString(),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void onSalesmanSelected(String salesmanName) {
+    selectedSalesman.value = salesmanName;
+
+    final salesmanObj = salesmen.firstWhere(
+      (se) => se.seName == salesmanName,
+    );
+
+    selectedSalesmanCode.value = salesmanObj.seCode;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
+import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
 import 'package:mndesai/services/api_service.dart';
 import 'package:mndesai/utils/helpers/secure_storage_helper.dart';
 
@@ -66,6 +67,7 @@ class PointsCalculationRepo {
     required String vehicleNo,
     required String cardNo,
     required String typeCode,
+    required String seCode,
     required List<Map<String, dynamic>> items,
   }) async {
     String? token = await SecureStorageHelper.read(
@@ -80,8 +82,11 @@ class PointsCalculationRepo {
         "VEHICLENO": vehicleNo,
         "CARDNO": cardNo,
         "TYPECODE": typeCode,
+        "SECODE": seCode,
         "ItemData": items,
       };
+
+      print(requestBody);
 
       var response = await ApiService.postRequest(
         endpoint: '/MobileEntry/save',
@@ -91,6 +96,29 @@ class PointsCalculationRepo {
       return response;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  static Future<List<SalesmanDm>> getSalesmen() async {
+    String? token = await SecureStorageHelper.read('token');
+
+    try {
+      final response = await ApiService.getRequest(
+        endpoint: '/Master/salesmen',
+        token: token,
+      );
+
+      if (response == null || response is! List) {
+        return [];
+      }
+
+      return response
+          .map(
+            (item) => SalesmanDm.fromJson(item),
+          )
+          .toList();
+    } catch (e) {
+      return [];
     }
   }
 }

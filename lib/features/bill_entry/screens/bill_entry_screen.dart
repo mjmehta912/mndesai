@@ -46,6 +46,9 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
     _controller.cardInfo.value = null;
     _controller.remarkController.clear();
     _controller.customerNameController.text = 'Cash Sales';
+    _controller.selectedSalesman.value = '';
+    _controller.selectedSalesmanCode.value = '';
+    _controller.getSalesMen();
   }
 
   @override
@@ -72,6 +75,10 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                             _controller.cardInfo.value = null;
                             _controller.vehicleNoController.clear();
                             _controller.vehicleNos.clear();
+                            _controller.selectedSalesman.value = '';
+                            _controller.selectedSalesmanCode.value = '';
+                            _controller.salesmen.clear();
+                            _controller.salesmanNames.clear();
                             _controller.toggleCardVisibility();
                           },
                           icon: Icon(
@@ -103,6 +110,10 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                             _controller.cardNoController.clear();
                             _controller.vehicleNoController.clear();
                             _controller.vehicleNos.clear();
+                            _controller.selectedSalesman.value = '';
+                            _controller.selectedSalesmanCode.value = '';
+                            _controller.salesmen.clear();
+                            _controller.salesmanNames.clear();
                             _controller.cardInfo.value = null;
                           },
                           child: SizedBox(
@@ -141,14 +152,20 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             _controller.isCardSelected.value = false;
                             _controller.addedProducts.clear();
                             _controller.vehicleNoController.clear();
                             _controller.vehicleNos.clear();
+                            _controller.salesmen.clear();
+                            _controller.salesmanNames.clear();
+                            _controller.selectedSalesman.value = '';
+                            _controller.selectedSalesmanCode.value = '';
                             _controller.remarkController.clear();
                             _controller.customerNameController.text =
                                 'Cash Sales';
+
+                            await _controller.getSalesMen();
                           },
                           child: SizedBox(
                             width: 0.275.screenWidth,
@@ -283,6 +300,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                 if (_controller
                                                         .cardInfo.value !=
                                                     null) {
+                                                  await _controller
+                                                      .getSalesMen();
                                                   _controller
                                                       .toggleCardVisibility();
                                                 } else {
@@ -305,6 +324,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                       )
                                     : Column(
                                         children: [
+                                          AppSpaces.v10,
                                           AppTextFormField(
                                             controller:
                                                 _controller.vehicleNoController,
@@ -441,6 +461,24 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                               }
                                             },
                                           ),
+                                          AppSpaces.v14,
+                                          Obx(
+                                            () => AppDropdown(
+                                              items: _controller.salesmanNames,
+                                              hintText: 'Salesman',
+                                              onChanged: (value) {
+                                                _controller
+                                                    .onSalesmanSelected(value!);
+                                              },
+                                              selectedItem: _controller
+                                                      .selectedSalesman
+                                                      .value
+                                                      .isNotEmpty
+                                                  ? _controller
+                                                      .selectedSalesman.value
+                                                  : null,
+                                            ),
+                                          ),
                                           AppSpaces.v10,
                                           BillEntryCard(
                                             controller: _controller,
@@ -498,12 +536,13 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                               } else {
                                 return Column(
                                   children: [
+                                    AppSpaces.v10,
                                     AppTextFormField(
                                       controller:
                                           _controller.customerNameController,
                                       hintText: 'Customer Name',
                                     ),
-                                    AppSpaces.v10,
+                                    AppSpaces.v14,
                                     AppTextFormField(
                                       controller:
                                           _controller.vehicleNoController,
@@ -625,12 +664,29 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                         }
                                       },
                                     ),
-                                    AppSpaces.v10,
+                                    AppSpaces.v14,
+                                    Obx(
+                                      () => AppDropdown(
+                                        items: _controller.salesmanNames,
+                                        hintText: 'Salesman',
+                                        onChanged: (value) {
+                                          _controller
+                                              .onSalesmanSelected(value!);
+                                        },
+                                        selectedItem: _controller
+                                                .selectedSalesman
+                                                .value
+                                                .isNotEmpty
+                                            ? _controller.selectedSalesman.value
+                                            : null,
+                                      ),
+                                    ),
+                                    AppSpaces.v14,
                                     AppTextFormField(
                                       controller: _controller.remarkController,
                                       hintText: 'Remarks',
                                     ),
-                                    AppSpaces.v10,
+                                    AppSpaces.v14,
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -651,7 +707,7 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                         ),
                                       ],
                                     ),
-                                    AppSpaces.v10,
+                                    AppSpaces.v14,
                                     Obx(
                                       () => ListView.builder(
                                         shrinkWrap: true,

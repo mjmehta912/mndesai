@@ -4,7 +4,6 @@ import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
-import 'package:mndesai/utils/extensions/app_size_extensions.dart';
 import 'package:mndesai/utils/screen_utils/app_paddings.dart';
 import 'package:mndesai/utils/screen_utils/app_spacings.dart';
 import 'package:mndesai/widgets/app_button.dart';
@@ -50,7 +49,7 @@ void showErrorSnackbar(
       child: Text(
         'OK',
         style: TextStyles.kMediumDMSans(
-          color: kColorTextPrimary,
+          color: kColorWhite,
           fontSize: FontSizes.k24FontSize,
         ),
       ),
@@ -99,7 +98,7 @@ void showAlertSnackbar(
       child: Text(
         'OK',
         style: TextStyles.kMediumDMSans(
-          color: kColorWhite,
+          color: kColorTextPrimary,
           fontSize: FontSizes.k24FontSize,
         ),
       ),
@@ -190,17 +189,11 @@ void showSuccessDialog(
                 textAlign: TextAlign.center,
               ),
               AppSpaces.v10,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  AppButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    title: '  OK',
-                    buttonWidth: 0.2.screenWidth,
-                  ),
-                ],
+              AppButton(
+                onPressed: () {
+                  Get.back();
+                },
+                title: '  OK',
               ),
             ],
           ),

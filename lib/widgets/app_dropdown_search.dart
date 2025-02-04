@@ -54,6 +54,16 @@ class AppDropdown extends StatelessWidget {
             fontSize: FontSizes.k16FontSize,
             color: kColorGrey,
           ),
+          floatingLabelBehavior: FloatingLabelBehavior.auto,
+          floatingLabelStyle: TextStyles.kRegularDMSans(
+            fontSize: FontSizes.k18FontSize,
+            color: kColorPrimary,
+          ),
+          labelText: hintText,
+          labelStyle: TextStyles.kRegularDMSans(
+            fontSize: FontSizes.k16FontSize,
+            color: kColorGrey,
+          ),
           errorStyle: TextStyles.kRegularDMSans(
             fontSize: FontSizes.k16FontSize,
             color: kColorRed,
@@ -119,6 +129,16 @@ class AppDropdown extends StatelessWidget {
           decoration: InputDecoration(
             hintText: searchHintText ?? 'Search',
             hintStyle: TextStyles.kRegularDMSans(
+              fontSize: FontSizes.k16FontSize,
+              color: kColorGrey,
+            ),
+            floatingLabelBehavior: FloatingLabelBehavior.auto,
+            floatingLabelStyle: TextStyles.kRegularDMSans(
+              fontSize: FontSizes.k18FontSize,
+              color: kColorPrimary,
+            ),
+            labelText: hintText,
+            labelStyle: TextStyles.kRegularDMSans(
               fontSize: FontSizes.k16FontSize,
               color: kColorGrey,
             ),

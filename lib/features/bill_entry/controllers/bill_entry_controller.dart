@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mndesai/constants/color_constants.dart';
+import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/bill_entry/models/vehicle_no_dm.dart';
 import 'package:mndesai/features/bill_entry/repositories/bill_entry_repo.dart';
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
+import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
+import 'package:mndesai/styles/font_sizes.dart';
+import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
+import 'package:mndesai/utils/screen_utils/app_paddings.dart';
+import 'package:mndesai/utils/screen_utils/app_spacings.dart';
+import 'package:mndesai/widgets/app_button.dart';
 
 class BillEntryController extends GetxController {
   var isLoading = false.obs;
@@ -15,6 +23,11 @@ class BillEntryController extends GetxController {
   var productNames = <String>[].obs;
   var addedProducts = <Map<String, dynamic>>[].obs;
 
+  var salesmen = <SalesmanDm>[].obs;
+  var salesmanNames = <String>[].obs;
+  var selectedSalesman = ''.obs;
+  var selectedSalesmanCode = ''.obs;
+
   var customerNameController = TextEditingController();
   var vehicleNoController = TextEditingController();
   var remarkController = TextEditingController();
@@ -23,6 +36,7 @@ class BillEntryController extends GetxController {
   var selectedProductCode = ''.obs;
   var selectedProductShortName = ''.obs;
   var selectedProductRate = 0.0.obs;
+  var selectedProductPointRate = 0.0.obs;
   var selectedProductSpecialRate = 0.0.obs;
   var selectedProductDateWise = false.obs;
   var selectedProductMinimumLimit = 0.0.obs;
@@ -56,6 +70,7 @@ class BillEntryController extends GetxController {
       "QTY": double.tryParse(qtyController.text) ?? 0.0,
       "RATE": double.tryParse(rateController.text) ?? 0.0,
       "AMOUNT": double.tryParse(amountController.text) ?? 0.0,
+      "PointRate": selectedProductPointRate.value
     };
     addedProducts.add(product);
 
@@ -63,6 +78,7 @@ class BillEntryController extends GetxController {
     selectedProductCode.value = '';
     selectedProductShortName.value = '';
     selectedProductRate.value = 0.0;
+    selectedProductPointRate.value = 0.0;
     selectedProductSpecialRate.value = 0.0;
     selectedProductDateWise.value = false;
     selectedProductMinimumLimit.value = 0.0;
@@ -117,6 +133,7 @@ class BillEntryController extends GetxController {
 
     selectedProductCode.value = productObj.iCode;
     selectedProductShortName.value = productObj.shortName;
+    selectedProductPointRate.value = productObj.pointRate!;
     selectedProductMinimumLimit.value = productObj.minLimit;
     selectedProductMaximumLimit.value = productObj.maxLimit;
     if (productObj.dateWise == true && productObj.rate != null) {
@@ -138,6 +155,37 @@ class BillEntryController extends GetxController {
       selectedProductRate.value = 0.0;
       rateController.text = selectedProductRate.value.toString();
     }
+  }
+
+  Future<void> getSalesMen() async {
+    isLoading.value = false;
+    try {
+      final fetchedSalesmen = await BillEntryRepo.getSalesmen();
+
+      salesmen.assignAll(fetchedSalesmen);
+      salesmanNames.assignAll(
+        fetchedSalesmen.map(
+          (se) => se.seName,
+        ),
+      );
+    } catch (e) {
+      showErrorSnackbar(
+        'Error',
+        e.toString(),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void onSalesmanSelected(String salesmanName) {
+    selectedSalesman.value = salesmanName;
+
+    final salesmanObj = salesmen.firstWhere(
+      (se) => se.seName == salesmanName,
+    );
+
+    selectedSalesmanCode.value = salesmanObj.seCode;
   }
 
   Future<void> getCardInfo() async {
@@ -195,6 +243,7 @@ class BillEntryController extends GetxController {
             "ICODE": product["ICODE"],
             "QTY": product["QTY"],
             "RATE": product["RATE"],
+            "PointRate": product['PointRate'],
           };
         },
       ).toList();
@@ -219,16 +268,14 @@ class BillEntryController extends GetxController {
                 ? cardInfo.value!.typeCode
                 : ''
             : '',
+        seCode: selectedSalesmanCode.value.isNotEmpty
+            ? selectedSalesmanCode.value
+            : '',
         items: itemsToSend,
       );
 
       if (response != null && response.containsKey('message')) {
         String message = response['message'];
-
-        showSuccessDialog(
-          Get.context!,
-          message,
-        );
 
         if (isCardSelected.value) {
           cardNoController.clear();
@@ -236,13 +283,212 @@ class BillEntryController extends GetxController {
           cardInfo.value = null;
           vehicleNoController.clear();
           vehicleNos.clear();
+          selectedSalesman.value = '';
+          selectedSalesmanCode.value = '';
+          salesmen.clear();
+          salesmanNames.clear();
           toggleCardVisibility();
+          String message = response['message'];
+          double totalPoints = response['TotalPoints'];
+          double prevPoints = response['PrevPoints'];
+          double currentPoints = totalPoints - prevPoints;
+          String cardNo = response['CardNo'];
+          String mobileNo = response['MobileNo'];
+          showDialog(
+            context: Get.context!,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return Dialog(
+                backgroundColor: kColorWhite,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Container(
+                  padding: AppPaddings.p10,
+                  constraints: const BoxConstraints(
+                    maxWidth: 300,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        kSuccessLottieGif,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(
+                        message,
+                        style: TextStyles.kBoldDMSans(
+                          color: Colors.green,
+                        ).copyWith(
+                          height: 1.25,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      AppSpaces.v10,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Card No. : ',
+                            style: TextStyles.kRegularDMSans(
+                              color: kColorTextPrimary,
+                              fontSize: FontSizes.k16FontSize,
+                            ).copyWith(
+                              height: 1.25,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            cardNo,
+                            style: TextStyles.kBoldDMSans(
+                              color: kColorTextPrimary,
+                              fontSize: FontSizes.k16FontSize,
+                            ).copyWith(
+                              height: 1.25,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Mobile No. : ',
+                            style: TextStyles.kRegularDMSans(
+                              color: kColorTextPrimary,
+                              fontSize: FontSizes.k16FontSize,
+                            ).copyWith(
+                              height: 1.25,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            mobileNo,
+                            style: TextStyles.kBoldDMSans(
+                              color: kColorTextPrimary,
+                              fontSize: FontSizes.k16FontSize,
+                            ).copyWith(
+                              height: 1.25,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      AppSpaces.v6,
+                      Text(
+                        'Previous Points : $prevPoints',
+                        style: TextStyles.kMediumDMSans(
+                          color: kColorTextPrimary,
+                          fontSize: FontSizes.k16FontSize,
+                        ).copyWith(
+                          height: 1.25,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      AppSpaces.v4,
+                      Text(
+                        'Current Points : $currentPoints',
+                        style: TextStyles.kBoldDMSans(
+                          color: kColorPrimary,
+                          fontSize: FontSizes.k18FontSize,
+                        ).copyWith(
+                          height: 1.25,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        'Total Points : $totalPoints',
+                        style: TextStyles.kBoldDMSans(
+                          color: kColorTextPrimary,
+                        ).copyWith(
+                          height: 1.25,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      AppSpaces.v10,
+                      AppButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        title: 'OK',
+                      ),
+                      AppSpaces.v10,
+                      AppButton(
+                        buttonColor: kColorWhite,
+                        titleColor: kColorPrimary,
+                        onPressed: () {},
+                        title: 'Print',
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
         } else {
           vehicleNos.clear();
           vehicleNoController.clear();
           remarkController.clear();
           customerNameController.text = 'Cash Sales';
           addedProducts.clear();
+          selectedSalesman.value = '';
+          selectedSalesmanCode.value = '';
+          salesmen.clear();
+          salesmanNames.clear();
+          await getSalesMen();
+          showDialog(
+            context: Get.context!,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return Dialog(
+                backgroundColor: kColorWhite,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Container(
+                  padding: AppPaddings.p10,
+                  constraints: const BoxConstraints(
+                    maxWidth: 300,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        kSuccessLottieGif,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(
+                        message,
+                        style: TextStyles.kBoldDMSans(
+                          color: Colors.green,
+                        ).copyWith(
+                          height: 1.25,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      AppSpaces.v10,
+                      AppButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        title: 'OK',
+                      ),
+                      AppSpaces.v10,
+                      AppButton(
+                        buttonColor: kColorWhite,
+                        titleColor: kColorPrimary,
+                        onPressed: () {},
+                        title: 'Print',
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
         }
       }
     } catch (e) {

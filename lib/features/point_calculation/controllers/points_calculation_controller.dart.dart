@@ -5,6 +5,7 @@ import 'package:mndesai/constants/image_constants.dart';
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
 import 'package:mndesai/features/point_calculation/repositories/points_calculation_repo.dart';
+import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
@@ -30,6 +31,7 @@ class PointsCalculationController extends GetxController {
   var selectedProductCode = ''.obs;
   var selectedProductShortName = ''.obs;
   var selectedProductRate = 0.0.obs;
+  var selectedProductPointRate = 0.0.obs;
   var selectedProductSpecialRate = 0.0.obs;
   var selectedProductDateWise = false.obs;
   var selectedProductMinimumLimit = 0.0.obs;
@@ -37,6 +39,10 @@ class PointsCalculationController extends GetxController {
   var qtyController = TextEditingController();
   var rateController = TextEditingController();
   var amountController = TextEditingController();
+  var salesmen = <SalesmanDm>[].obs;
+  var salesmanNames = <String>[].obs;
+  var selectedSalesman = ''.obs;
+  var selectedSalesmanCode = ''.obs;
 
   var addedProducts = <Map<String, dynamic>>[].obs;
 
@@ -54,12 +60,14 @@ class PointsCalculationController extends GetxController {
       "QTY": double.tryParse(qtyController.text) ?? 0.0,
       "RATE": double.tryParse(rateController.text) ?? 0.0,
       "AMOUNT": double.tryParse(amountController.text) ?? 0.0,
+      "PointRate": selectedProductPointRate.value
     };
     addedProducts.add(product);
 
     selectedProduct.value = '';
     selectedProductCode.value = '';
     selectedProductRate.value = 0.0;
+    selectedProductPointRate.value = 0.0;
     selectedProductSpecialRate.value = 0.0;
     selectedProductDateWise.value = false;
     selectedProductMinimumLimit.value = 0.0;
@@ -128,6 +136,7 @@ class PointsCalculationController extends GetxController {
 
     selectedProductCode.value = productObj.iCode;
     selectedProductShortName.value = productObj.shortName;
+    selectedProductPointRate.value = productObj.pointRate!;
     selectedProductMinimumLimit.value = productObj.minLimit;
     selectedProductMaximumLimit.value = productObj.maxLimit;
     if (productObj.dateWise == true && productObj.rate != null) {
@@ -151,6 +160,37 @@ class PointsCalculationController extends GetxController {
     }
   }
 
+  Future<void> getSalesMen() async {
+    isLoading.value = false;
+    try {
+      final fetchedSalesmen = await PointsCalculationRepo.getSalesmen();
+
+      salesmen.assignAll(fetchedSalesmen);
+      salesmanNames.assignAll(
+        fetchedSalesmen.map(
+          (se) => se.seName,
+        ),
+      );
+    } catch (e) {
+      showErrorSnackbar(
+        'Error',
+        e.toString(),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void onSalesmanSelected(String salesmanName) {
+    selectedSalesman.value = salesmanName;
+
+    final salesmanObj = salesmen.firstWhere(
+      (se) => se.seName == salesmanName,
+    );
+
+    selectedSalesmanCode.value = salesmanObj.seCode;
+  }
+
   Future<void> savePointsEntry() async {
     isLoading.value = true;
 
@@ -162,6 +202,7 @@ class PointsCalculationController extends GetxController {
             "ICODE": product["ICODE"],
             "QTY": product["QTY"],
             "RATE": product["RATE"],
+            "PointRate": product['PointRate'],
           };
         },
       ).toList();
@@ -173,6 +214,9 @@ class PointsCalculationController extends GetxController {
         vehicleNo: '',
         cardNo: cardInfo.value != null ? cardInfo.value!.cardNo.toString() : '',
         typeCode: cardInfo.value != null ? cardInfo.value!.typeCode : '',
+        seCode: selectedSalesmanCode.value.isNotEmpty
+            ? selectedSalesmanCode.value
+            : '',
         items: itemsToSend,
       );
 
@@ -303,6 +347,13 @@ class PointsCalculationController extends GetxController {
                       },
                       title: 'OK',
                     ),
+                    AppSpaces.v10,
+                    AppButton(
+                      buttonColor: kColorWhite,
+                      titleColor: kColorPrimary,
+                      onPressed: () {},
+                      title: 'Print',
+                    ),
                   ],
                 ),
               ),
@@ -312,6 +363,10 @@ class PointsCalculationController extends GetxController {
 
         cardNoController.clear();
         addedProducts.clear();
+        selectedSalesman.value = '';
+        selectedSalesmanCode.value = '';
+        salesmen.clear();
+        salesmanNames.clear();
         cardInfo.value = null;
         toggleCardVisibility();
       }
