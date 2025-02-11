@@ -63,6 +63,14 @@ class _VirtualCardGenerationScreenState
     await _controller.getSalesMen();
   }
 
+  Future<void> _refreshData() async {
+    await _controller.getCardNo();
+    if (_controller.cardData.value != null) {
+      _controller.availableCardNoController.text =
+          _controller.cardData.value!.cardNo.toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -76,125 +84,115 @@ class _VirtualCardGenerationScreenState
             appBar: AppAppbar(
               title: 'Virtual Card Generation',
             ),
-            body: Padding(
-              padding: AppPaddings.p14,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Form(
-                        key: _controller.virtualCardFenerationFormKey,
-                        child: Column(
-                          children: [
-                            AppSpaces.v10,
-                            AppTextFormField(
-                              controller: _controller.mobileNoController,
-                              hintText: 'Mobile No.',
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Please enter a mobile number';
-                                }
-                                if (value.length != 10) {
-                                  return 'Please enter a 10-digit mobile number';
-                                }
-                                return null;
-                              },
-                              keyboardType: TextInputType.phone,
-                              inputFormatters: [
-                                MobileNumberInputFormatter(),
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
-                            ),
-                            AppSpaces.v14,
-                            AppTextFormField(
-                              controller: _controller.nameController,
-                              hintText: 'Name',
-                              inputFormatters: [
-                                TitleCaseTextInputFormatter(),
-                              ],
-                            ),
-                            AppSpaces.v14,
-                            AppDatePickerTextFormField(
-                              dateController: _controller.birthDateController,
-                              hintText: 'Birth Date',
-                            ),
-                            AppSpaces.v14,
-                            Obx(
-                              () => AppDropdown(
-                                items: _controller.salesmanNames,
-                                hintText: 'Salesman',
-                                onChanged: (value) {
-                                  _controller.onSalesmanSelected(value!);
+            body: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: Padding(
+                padding: AppPaddings.p14,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: Form(
+                          key: _controller.virtualCardFenerationFormKey,
+                          child: Column(
+                            children: [
+                              AppSpaces.v10,
+                              AppTextFormField(
+                                controller: _controller.mobileNoController,
+                                hintText: 'Mobile No.',
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please enter a mobile number';
+                                  }
+                                  if (value.length != 10) {
+                                    return 'Please enter a 10-digit mobile number';
+                                  }
+                                  return null;
                                 },
-                                selectedItem: _controller
-                                        .selectedSalesman.value.isNotEmpty
-                                    ? _controller.selectedSalesman.value
-                                    : null,
+                                keyboardType: TextInputType.phone,
+                                inputFormatters: [
+                                  MobileNumberInputFormatter(),
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(10),
+                                ],
                               ),
-                            ),
-                            AppSpaces.v14,
-                            AppTextFormField(
-                              controller: _controller.availableCardNoController,
-                              hintText: 'Available Card No.',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Card no. cannot be empty';
-                                }
-                                return null;
-                              },
-                              enabled: false,
-                            ),
-                            AppSpaces.v14,
-                            AppTextFormField(
-                              controller: _controller.refCardNoController,
-                              hintText: 'Ref. Card No.',
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  Get.to(
-                                    () => RefCardHelpScreen(),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.question_mark_outlined,
-                                  color: kColorTextPrimary,
+                              AppSpaces.v14,
+                              AppTextFormField(
+                                controller: _controller.nameController,
+                                hintText: 'Name',
+                                inputFormatters: [
+                                  TitleCaseTextInputFormatter(),
+                                ],
+                              ),
+                              AppSpaces.v14,
+                              AppDatePickerTextFormField(
+                                dateController: _controller.birthDateController,
+                                hintText: 'Birth Date',
+                              ),
+                              AppSpaces.v14,
+                              Obx(
+                                () => AppDropdown(
+                                  items: _controller.salesmanNames,
+                                  hintText: 'Salesman',
+                                  onChanged: (value) {
+                                    _controller.onSalesmanSelected(value!);
+                                  },
+                                  selectedItem: _controller
+                                          .selectedSalesman.value.isNotEmpty
+                                      ? _controller.selectedSalesman.value
+                                      : null,
                                 ),
                               ),
-                            ),
-                          ],
+                              AppSpaces.v14,
+                              AppTextFormField(
+                                controller:
+                                    _controller.availableCardNoController,
+                                hintText: 'Available Card No.',
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Card no. cannot be empty';
+                                  }
+                                  return null;
+                                },
+                                enabled: false,
+                              ),
+                              AppSpaces.v14,
+                              AppTextFormField(
+                                controller: _controller.refCardNoController,
+                                hintText: 'Ref. Card No.',
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    Get.to(
+                                      () => RefCardHelpScreen(),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.question_mark_outlined,
+                                    color: kColorTextPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  AppButton(
-                    title: 'Allot',
-                    onPressed: () async {
-                      if (_controller.virtualCardFenerationFormKey.currentState!
-                          .validate()) {
-                        await _controller.generateVirtualCard();
+                    AppButton(
+                      title: 'Allot',
+                      onPressed: () async {
+                        if (_controller
+                            .virtualCardFenerationFormKey.currentState!
+                            .validate()) {
+                          await _controller.generateVirtualCard();
 
-                        _controller.mobileNoController.clear();
-                        _controller.nameController.text = 'Alloted';
-                        _controller.refCardNoController.clear();
-                        _controller.selectedSalesman.value = '';
-                        _controller.selectedSalesmanCode.value = '';
-                        _controller.birthDateController.text =
-                            DateFormat('dd-MM-yyyy').format(
-                          DateTime.now(),
-                        );
-
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        await _controller.getCardNo();
-                        if (_controller.cardData.value != null) {
-                          _controller.availableCardNoController.text =
-                              _controller.cardData.value!.cardNo.toString();
+                          FocusManager.instance.primaryFocus?.unfocus();
                         }
-                      }
-                    },
-                  ),
-                  AppSpaces.v20,
-                ],
+                      },
+                    ),
+                    AppSpaces.v20,
+                  ],
+                ),
               ),
             ),
           ),

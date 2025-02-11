@@ -59,10 +59,27 @@ class VirtualCardGenerationController extends GetxController {
       if (response != null && response.containsKey('message')) {
         String message = response['message'];
 
+        mobileNoController.clear();
+        nameController.text = 'Alloted';
+        refCardNoController.clear();
+        selectedSalesman.value = '';
+        selectedSalesmanCode.value = '';
+        birthDateController.text = DateFormat('dd-MM-yyyy').format(
+          DateTime.now(),
+        );
+        await getCardNo();
+        if (cardData.value != null) {
+          availableCardNoController.text = cardData.value!.cardNo.toString();
+        }
         showSuccessDialog(
           Get.context!,
           message,
         );
+      } else {
+        await getCardNo();
+        if (cardData.value != null) {
+          availableCardNoController.text = cardData.value!.cardNo.toString();
+        }
       }
     } catch (e) {
       if (e is Map<String, dynamic>) {

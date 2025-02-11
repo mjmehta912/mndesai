@@ -86,7 +86,7 @@ class PointsCalculationRepo {
         "ItemData": items,
       };
 
-      print(requestBody);
+      // print(requestBody);
 
       var response = await ApiService.postRequest(
         endpoint: '/MobileEntry/save',
