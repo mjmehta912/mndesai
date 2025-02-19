@@ -11,14 +11,25 @@ import 'package:mndesai/features/profile/screens/profile_screen.dart';
 import 'package:mndesai/features/virtual_card_generation/screens/virtual_card_generation_screen.dart';
 import 'package:mndesai/utils/extensions/app_size_extensions.dart';
 
-class BottomNavScreen extends StatelessWidget {
-  BottomNavScreen({
+class BottomNavScreen extends StatefulWidget {
+  const BottomNavScreen({
     super.key,
   });
 
+  @override
+  State<BottomNavScreen> createState() => _BottomNavScreenState();
+}
+
+class _BottomNavScreenState extends State<BottomNavScreen> {
   final BottomNavController _controller = Get.put(
     BottomNavController(),
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.checkAppVersion();
+  }
 
   final List<Widget> pages = [
     KeyedPage(
