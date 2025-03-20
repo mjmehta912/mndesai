@@ -17,6 +17,7 @@ class BottomNavController extends GetxController {
     isLoading.value = true;
     try {
       String? version = await VersionService.getVersion();
+
       var result = await BottomNavigationRepo.getVersion(
         version: version,
       );
