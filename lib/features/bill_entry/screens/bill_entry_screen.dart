@@ -360,11 +360,13 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                 .circular(10),
                                                         border: Border.all(
                                                             color: kColorGrey
+                                                                // ignore: deprecated_member_use
                                                                 .withOpacity(
                                                                     0.3)),
                                                         boxShadow: [
                                                           BoxShadow(
                                                             color: kColorGrey
+                                                                // ignore: deprecated_member_use
                                                                 .withOpacity(
                                                                     0.2),
                                                             blurRadius: 5,
@@ -445,8 +447,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                           1)
                                                                     Divider(
                                                                       color: kColorGrey
-                                                                          .withOpacity(
-                                                                              0.3),
+                                                                          // ignore: deprecated_member_use
+                                                                          .withOpacity(0.3),
                                                                       height: 1,
                                                                     ),
                                                                 ],
@@ -576,10 +578,12 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                       BorderRadius.circular(10),
                                                   border: Border.all(
                                                       color: kColorGrey
+                                                          // ignore: deprecated_member_use
                                                           .withOpacity(0.3)),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: kColorGrey
+                                                          // ignore: deprecated_member_use
                                                           .withOpacity(0.2),
                                                       blurRadius: 5,
                                                       offset:
@@ -648,8 +652,8 @@ class _BillEntryScreenState extends State<BillEntryScreen> {
                                                                     1)
                                                               Divider(
                                                                 color: kColorGrey
-                                                                    .withOpacity(
-                                                                        0.3),
+                                                                    // ignore: deprecated_member_use
+                                                                    .withOpacity(0.3),
                                                                 height: 1,
                                                               ),
                                                           ],

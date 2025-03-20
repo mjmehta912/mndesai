@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
+import 'package:mndesai/features/authentication/forgot_password/screens/forgot_password_screen.dart';
 import 'package:mndesai/features/authentication/login/controllers/login_controller.dart';
 import 'package:mndesai/features/authentication/register/screens/register_screen.dart';
 import 'package:mndesai/styles/font_sizes.dart';
@@ -98,7 +99,11 @@ class LoginScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           AppTextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.to(
+                                () => ForgotPasswordScreen(),
+                              );
+                            },
                             title: 'Forgot Password?',
                             style: TextStyles.kRegularDMSans(
                               color: kColorPrimary,

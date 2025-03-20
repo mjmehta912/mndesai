@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/features/authentication/forgot_password/controllers/forgot_password_controller.dart';
-import 'package:mndesai/features/authentication/otp/screens/otp_screen.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/formatters/text_input_formatters.dart';
@@ -86,12 +85,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                           FocusManager.instance.primaryFocus?.unfocus();
                           if (_controller.forgotPasswordFormKey.currentState!
                               .validate()) {
-                            Get.to(
-                              () => OtpScreen(
-                                mobileNumber:
-                                    _controller.mobileNumberController.text,
-                              ),
-                            );
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            _controller.forgotPassword();
                           }
                         },
                       ),

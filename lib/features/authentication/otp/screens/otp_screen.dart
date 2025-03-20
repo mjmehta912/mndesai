@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mndesai/constants/color_constants.dart';
 import 'package:mndesai/features/authentication/otp/controllers/otp_controller.dart';
-import 'package:mndesai/features/authentication/reset_password/screens/reset_password_screen.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
 import 'package:mndesai/utils/dialogs/app_dialogs.dart';
@@ -95,10 +94,8 @@ class OtpScreen extends StatelessWidget {
                             'Please enter a 6-digit OTP',
                           );
                         } else {
-                          Get.offAll(
-                            () => ResetPasswordScreen(
-                              mobileNumber: mobileNumber,
-                            ),
+                          _controller.verifyOtp(
+                            mobileNumber: mobileNumber,
                           );
                         }
                       },
@@ -108,7 +105,13 @@ class OtpScreen extends StatelessWidget {
                       child: Obx(
                         () {
                           return AppTextButton(
-                            onPressed: () {},
+                            onPressed: _controller.resendEnabled.value
+                                ? () {
+                                    _controller.resendOtp(
+                                      mobileNumber: mobileNumber,
+                                    );
+                                  }
+                                : () {},
                             title: _controller.resendEnabled.value
                                 ? 'Resend OTP'
                                 : 'Resend in ${_controller.timerValue.value}s',

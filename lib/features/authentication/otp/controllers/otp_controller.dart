@@ -2,6 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mndesai/features/authentication/forgot_password/repositories/forgot_password_repo.dart';
+import 'package:mndesai/features/authentication/otp/repositories/otp_repo.dart';
+import 'package:mndesai/features/authentication/reset_password/screens/reset_password_screen.dart';
+import 'package:mndesai/utils/dialogs/app_dialogs.dart';
 
 class OtpController extends GetxController {
   var isLoading = false.obs;
@@ -44,5 +48,64 @@ class OtpController extends GetxController {
         }
       },
     );
+  }
+
+  Future<void> verifyOtp({
+    required String mobileNumber,
+  }) async {
+    isLoading.value = true;
+
+    try {
+      var response = await OtpRepo.verifyOtp(
+        mobileNumber: mobileNumber,
+        otp: otpController.text,
+      );
+
+      if (response != null && response.containsKey('message')) {
+        String message = response['message'];
+        Get.offAll(
+          () => ResetPasswordScreen(
+            mobileNumber: mobileNumber,
+          ),
+        );
+        showSuccessSnackbar(
+          'Success',
+          message,
+        );
+      }
+    } catch (e) {
+      showErrorSnackbar(
+        'Error',
+        e.toString(),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resendOtp({
+    required String mobileNumber,
+  }) async {
+    if (!resendEnabled.value) return;
+
+    isLoading.value = true;
+    try {
+      var response = await ForgotPasswordRepo.forgotPassword(
+        mobileNo: mobileNumber,
+      );
+
+      showSuccessSnackbar(
+        'Success',
+        response['message'] ?? 'OTP resent successfully.',
+      );
+      startResendTimer();
+    } catch (e) {
+      showErrorSnackbar(
+        'Error',
+        e.toString(),
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

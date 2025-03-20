@@ -6,6 +6,8 @@ import 'package:mndesai/features/bill_entry/models/vehicle_no_dm.dart';
 import 'package:mndesai/features/bill_entry/repositories/bill_entry_repo.dart';
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
+import 'package:mndesai/features/point_calculation/repositories/points_calculation_repo.dart';
+import 'package:mndesai/features/point_calculation/screens/slip_pdf_screen.dart';
 import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
 import 'package:mndesai/styles/font_sizes.dart';
 import 'package:mndesai/styles/text_styles.dart';
@@ -274,9 +276,7 @@ class BillEntryController extends GetxController {
         items: itemsToSend,
       );
 
-      if (response != null && response.containsKey('message')) {
-        String message = response['message'];
-
+      if (response != null && response['data'][0].containsKey('message')) {
         if (isCardSelected.value) {
           cardNoController.clear();
           addedProducts.clear();
@@ -288,12 +288,16 @@ class BillEntryController extends GetxController {
           salesmen.clear();
           salesmanNames.clear();
           toggleCardVisibility();
-          String message = response['message'];
-          double totalPoints = response['TotalPoints'];
-          double prevPoints = response['PrevPoints'];
+          String message = response['data'][0]['message'];
+          double totalPoints = response['data'][0]['TotalPoints'];
+          double prevPoints = response['data'][0]['PrevPoints'];
           double currentPoints = totalPoints - prevPoints;
-          String cardNo = response['CardNo'];
-          String mobileNo = response['MobileNo'];
+          String cardNo = response['data'][0]['CardNo'];
+          String mobileNo = response['data'][0]['MobileNo'];
+          String pName = response['data'][0]['PNAME'];
+          int tranNo = response['data'][0]['TRANNO'];
+          var itemData = response['itemdata'];
+
           showDialog(
             context: Get.context!,
             barrierDismissible: false,
@@ -418,7 +422,31 @@ class BillEntryController extends GetxController {
                       AppButton(
                         buttonColor: kColorWhite,
                         titleColor: kColorPrimary,
-                        onPressed: () {},
+                        onPressed: () {
+                          List<Map<String, dynamic>> formattedItemData =
+                              (itemData as List<dynamic>)
+                                  .map<Map<String, dynamic>>((item) {
+                            double amount = item['AMOUNT'];
+                            String productName = item['Product'];
+                            double qty = item['QTY'];
+
+                            return {
+                              "Product": productName,
+                              "Amount": amount.toString(),
+                              "QTY": qty.toString(),
+                            };
+                          }).toList();
+                          downloadSlip(
+                            pName: pName,
+                            mobileNo: mobileNo,
+                            cardNo: cardNo,
+                            tranNo: tranNo.toString(),
+                            prevPoints: prevPoints.toString(),
+                            currentPoints: currentPoints.toString(),
+                            totalPoints: totalPoints.toString(),
+                            itemData: formattedItemData,
+                          );
+                        },
                         title: 'Print',
                       ),
                     ],
@@ -438,6 +466,17 @@ class BillEntryController extends GetxController {
           salesmen.clear();
           salesmanNames.clear();
           await getSalesMen();
+
+          String message = response['data'][0]['message'];
+          double totalPoints = response['data'][0]['TotalPoints'] ?? 0.0;
+          double prevPoints = response['data'][0]['PrevPoints'] ?? 0.0;
+          double currentPoints = totalPoints - prevPoints;
+          String cardNo = response['data'][0]['CardNo'] ?? '';
+          String mobileNo = response['data'][0]['MobileNo'] ?? '';
+          String pName = response['data'][0]['PNAME'];
+          int tranNo = response['data'][0]['TRANNO'];
+          var itemData = response['itemdata'];
+
           showDialog(
             context: Get.context!,
             barrierDismissible: false,
@@ -480,7 +519,33 @@ class BillEntryController extends GetxController {
                       AppButton(
                         buttonColor: kColorWhite,
                         titleColor: kColorPrimary,
-                        onPressed: () {},
+                        onPressed: () {
+                          List<Map<String, dynamic>> formattedItemData =
+                              (itemData as List<dynamic>)
+                                  .map<Map<String, dynamic>>(
+                            (item) {
+                              double amount = item['AMOUNT'];
+                              String productName = item['Product'];
+                              double qty = item['QTY'];
+
+                              return {
+                                "Product": productName,
+                                "Amount": amount.toString(),
+                                "QTY": qty.toString(),
+                              };
+                            },
+                          ).toList();
+                          downloadSlip(
+                            pName: pName,
+                            mobileNo: mobileNo,
+                            cardNo: cardNo,
+                            tranNo: tranNo.toString(),
+                            prevPoints: prevPoints.toString(),
+                            currentPoints: currentPoints.toString(),
+                            totalPoints: totalPoints.toString(),
+                            itemData: formattedItemData,
+                          );
+                        },
                         title: 'Print',
                       ),
                     ],
@@ -490,6 +555,55 @@ class BillEntryController extends GetxController {
             },
           );
         }
+      }
+    } catch (e) {
+      if (e is Map<String, dynamic>) {
+        showErrorSnackbar(
+          'Error',
+          e['message'],
+        );
+      } else {
+        showErrorSnackbar(
+          'Error',
+          e.toString(),
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> downloadSlip({
+    required String pName,
+    required String mobileNo,
+    required String cardNo,
+    required String tranNo,
+    required String prevPoints,
+    required String currentPoints,
+    required String totalPoints,
+    required List<Map<String, dynamic>> itemData,
+  }) async {
+    try {
+      isLoading.value = true;
+
+      final pdfBytes = await PointsCalculationRepo.downloadSlip(
+        pName: pName,
+        mobileNo: mobileNo,
+        cardNo: cardNo,
+        tranNo: tranNo,
+        lastPoint: prevPoints,
+        reward: currentPoints,
+        totalPoint: totalPoints,
+        itemData: itemData,
+      );
+
+      if (pdfBytes != null && pdfBytes.isNotEmpty) {
+        Get.to(
+          () => SlipPdfScreen(
+            pdfBytes: pdfBytes,
+            title: pName,
+          ),
+        );
       }
     } catch (e) {
       if (e is Map<String, dynamic>) {

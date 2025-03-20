@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:mndesai/features/point_calculation/models/card_info_dm.dart';
 import 'package:mndesai/features/point_calculation/models/product_dm.dart';
 import 'package:mndesai/features/virtual_card_generation/models/salesman_dm.dart';
@@ -119,6 +121,46 @@ class PointsCalculationRepo {
           .toList();
     } catch (e) {
       return [];
+    }
+  }
+
+  static Future<Uint8List?> downloadSlip({
+    required String pName,
+    required String mobileNo,
+    required String cardNo,
+    required String tranNo,
+    required String lastPoint,
+    required String reward,
+    required String totalPoint,
+    required List<Map<String, dynamic>> itemData,
+  }) async {
+    try {
+      String? token = await SecureStorageHelper.read('token');
+
+      Map<String, dynamic> requestBody = {
+        "PNAME": pName,
+        "Mobile": mobileNo,
+        "CARDNO": cardNo,
+        "TRANNO": tranNo,
+        "LastPoint": lastPoint,
+        "Reward": reward,
+        "TotalPoint": totalPoint,
+        "itemData": itemData,
+      };
+
+      final response = await ApiService.postRequest(
+        endpoint: '/MobileEntry/slip',
+        requestBody: requestBody,
+        token: token,
+      );
+
+      if (response is Uint8List) {
+        return response;
+      } else {
+        throw 'Failed to generate PDF. Unexpected response format.';
+      }
+    } catch (e) {
+      throw 'Error downloading ledger: $e';
     }
   }
 }
