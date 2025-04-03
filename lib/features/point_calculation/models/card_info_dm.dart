@@ -2,7 +2,7 @@ class CardInfoDm {
   final String cardType;
   final String member;
   final double? balance;
-  final int pcSrNo;
+  final String pcSrNo;
   final String mobileNo;
   final String pCode;
   final int cardNo;

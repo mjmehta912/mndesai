@@ -229,7 +229,7 @@ class PointsCalculationController extends GetxController {
         String cardNo = response['data'][0]['CardNo'];
         String mobileNo = response['data'][0]['MobileNo'];
         String pName = response['data'][0]['PNAME'];
-        int tranNo = response['data'][0]['TRANNO'];
+        String tranNo = response['data'][0]['TRANNO'];
         var itemData = response['itemdata'];
 
         showDialog(

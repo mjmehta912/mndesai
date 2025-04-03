@@ -4,6 +4,7 @@ import 'package:mndesai/utils/helpers/secure_storage_helper.dart';
 class BottomNavigationRepo {
   static Future<dynamic> getVersion({
     required String version,
+    required String deviceId,
   }) async {
     String? token = await SecureStorageHelper.read('token');
 
@@ -13,6 +14,7 @@ class BottomNavigationRepo {
         token: token,
         queryParams: {
           'Version': version,
+          'DeviceID': deviceId,
         },
       );
 
